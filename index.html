@@ -20,12 +20,12 @@
   <style>
     * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
     
-    /* CORREÇÃO DO SCROLL: Permite que a página role livremente em qualquer lugar */
+    /* CORREÇÃO DEFINITIVA DO SCROLL (Celular e Computador) */
     html { 
       background-color: #0f172a; 
       color: #f8fafc; 
       height: 100%;
-      overflow-y: auto; /* Força a barra de rolagem vertical */
+      overflow-y: auto; 
     }
     body { 
       background-color: #0f172a; 
@@ -52,9 +52,7 @@
   <!-- BARRA DE CARREGAMENTO -->
   <div id="loadingBar" class="fixed top-0 left-0 right-0 h-1 bg-indigo-500 animate-pulse z-50 hidden"></div>
 
-  <!-- =========================================================
-       TELA DE BLOQUEIO POR PIN DA EQUIPE
-       ========================================================= -->
+  <!-- TELA DE BLOQUEIO POR PIN -->
   <div id="viewPin" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-6 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-xs rounded-3xl p-6 text-center space-y-5 shadow-2xl">
       <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-3xl">
@@ -62,7 +60,7 @@
       </div>
       <div>
         <h1 class="text-xl font-black text-white tracking-tight">DropPost</h1>
-        <p class="text-xs text-slate-400 mt-1">Digite o PIN da equipe para acessar a programação de eventos</p>
+        <p class="text-xs text-slate-400 mt-1">Digite o PIN da equipe para acessar</p>
       </div>
 
       <form onsubmit="event.preventDefault(); confirmarPinTela();" class="space-y-3">
@@ -85,9 +83,7 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       NÍVEL 1: LOBBY DE EVENTOS (DROPPOST)
-       ========================================================= -->
+  <!-- LOBBY DE EVENTOS -->
   <div id="viewEventos" class="max-w-lg mx-auto px-4 pt-6">
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
@@ -113,16 +109,11 @@
       </div>
     </div>
 
-    <div id="listaEventos" class="space-y-3">
-      <!-- Renderizado via JS -->
-    </div>
+    <div id="listaEventos" class="space-y-3"></div>
   </div>
 
-  <!-- =========================================================
-       NÍVEL 2: PAINEL DO EVENTO SELECIONADO
-       ========================================================= -->
+  <!-- PAINEL DO EVENTO SELECIONADO -->
   <div id="viewPainel" class="hidden">
-    <!-- CABEÇALHO FIXO -->
     <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 pt-3 pb-3">
       <div class="max-w-lg mx-auto space-y-2.5">
         <div class="flex items-center justify-between gap-2">
@@ -136,7 +127,7 @@
           </div>
 
           <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="openModalRodape()" title="Configurar Evento, Dias e Rodapé" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-indigo-300 text-xs font-semibold px-2.5 py-2 rounded-lg">
+            <button onclick="openModalRodape()" title="Configurações" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-indigo-300 text-xs font-semibold px-2.5 py-2 rounded-lg">
               ⚙️ Config
             </button>
             <button onclick="syncData()" title="Atualizar" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 text-xs px-2.5 py-2 rounded-lg">
@@ -145,7 +136,6 @@
           </div>
         </div>
 
-        <!-- SELETOR "QUEM SOU EU?" (ORDEM ALFABÉTICA / SUPORTA EQUIPES GRANDES) -->
         <div class="flex items-center gap-2">
           <div class="relative flex-1">
             <select id="selectFiltroPessoa" onchange="selecionarFiltroPessoa(this.value)" class="w-full bg-slate-800 border border-slate-700 text-white text-xs font-semibold rounded-xl px-3 py-2.5 appearance-none focus:outline-none focus:border-indigo-500 pr-8">
@@ -161,20 +151,15 @@
       </div>
     </header>
 
-    <!-- LISTA DE CARDS DO EVENTO (AGRUPADOS POR DIA) -->
     <main class="max-w-lg mx-auto px-4 pt-4">
-      <div id="listaPosts" class="space-y-4">
-        <!-- Cards renderizados via JS -->
-      </div>
+      <div id="listaPosts" class="space-y-4"></div>
     </main>
 
-    <!-- BOTÃO FLUTUANTE (+ NOVO POST / IDEIA) -->
     <button onclick="openModalPost()" class="fixed bottom-20 right-5 z-30 bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:from-indigo-500 hover:to-fuchsia-500 active:scale-95 transition text-white font-bold px-5 py-3.5 rounded-2xl shadow-xl shadow-indigo-600/40 flex items-center gap-2">
       <span class="text-lg leading-none">＋</span>
       <span class="text-sm">Novo Post</span>
     </button>
 
-    <!-- NAVEGAÇÃO INFERIOR FIXA (3 ABAS) -->
     <nav class="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-800">
       <div class="max-w-lg mx-auto grid grid-cols-3 h-16">
         <button onclick="setAba('fila')" id="tabBtn_fila" class="flex flex-col items-center justify-center gap-0.5 text-indigo-400 font-semibold border-t-2 border-indigo-500">
@@ -201,9 +186,7 @@
     </nav>
   </div>
 
-  <!-- =========================================================
-       TOAST DE NOTIFICAÇÃO + BOTÃO DESFAZER
-       ========================================================= -->
+  <!-- TOAST DE NOTIFICAÇÃO -->
   <div id="toastContainer" class="fixed bottom-20 left-4 right-4 max-w-md mx-auto z-50 hidden">
     <div class="bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3">
       <span id="toastMsg" class="text-sm font-medium">Post marcado como feito!</span>
@@ -213,9 +196,7 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       MODAL 1: CRIAR / EDITAR EVENTO (COM MÚLTIPLOS DIAS)
-       ========================================================= -->
+  <!-- MODAL DE EVENTO -->
   <div id="modalEvento" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between">
@@ -230,7 +211,6 @@
         <input type="text" id="ev_nome" placeholder="Ex: Festival de Cultura 2026" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
       </div>
 
-      <!-- SELETOR DE MÚLTIPLOS DIAS DO EVENTO -->
       <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2.5">
         <label class="block text-xs font-semibold uppercase text-slate-300">Dias de Duração do Evento *</label>
         <div class="flex gap-2">
@@ -239,16 +219,12 @@
             ＋ Adicionar Dia
           </button>
         </div>
-        <p class="text-[11px] text-slate-400">Adicione todos os dias do evento (ex: sexta, sábado e domingo).</p>
-        <div id="ev_lista_datas_pills" class="flex flex-wrap gap-1.5 pt-1">
-          <!-- Pílulas de datas adicionadas -->
-        </div>
+        <div id="ev_lista_datas_pills" class="flex flex-wrap gap-1.5 pt-1"></div>
       </div>
 
       <div>
         <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Texto Final Padrão (Frase + @ + Hashtags)</label>
-        <p class="text-[11px] text-slate-400 mb-1.5">Copiado junto quando alguém tocar em "#️⃣ Copiar + Final".</p>
-        <textarea id="ev_rodape" rows="4" placeholder="Ex: Viva essa experiência com a gente! 🚀&#10;Realização: @culturasbo&#10;#Evento #Cultura" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+        <textarea id="ev_rodape" rows="4" placeholder="Ex: Viva essa experiência! #Evento" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
       </div>
 
       <div class="flex gap-2 pt-2">
@@ -258,9 +234,7 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       MODAL 2: CRIAR / EDITAR POST (DIAS EM PÍLULA + MULTI-RESPONSÁVEIS)
-       ========================================================= -->
+  <!-- MODAL DE POST -->
   <div id="modalPost" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between">
@@ -271,7 +245,6 @@
       <input type="hidden" id="post_id">
       <input type="hidden" id="post_modo_condicional" value="post">
 
-      <!-- CAMPO PRINCIPAL CONDICIONAL -->
       <div>
         <label id="labelCampoPrincipal" class="block text-xs font-semibold uppercase text-slate-400 mb-1">
           Título do Post (ou cole um Link para salvar como Ideia) *
@@ -279,20 +252,17 @@
         <input type="text" id="post_campo_principal" oninput="verificarCondicionalLink(this.value)" placeholder="Ex: Abertura dos Portões ou https://..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
       </div>
 
-      <!-- AVISO DO MODO IDEIA CONDICIONAL -->
       <div id="boxModoIdeia" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 space-y-2">
         <div class="flex items-center gap-2 text-amber-300 font-bold text-xs">
           <span>💡</span>
           <span>Link detectado! Modo Referência Rápida ativado.</span>
         </div>
-        <p class="text-xs text-slate-300">Este link irá direto para a aba <b>Ideias</b>. Depois você pode aprová-lo e definir dia, horário e legenda.</p>
+        <p class="text-xs text-slate-300">Este link irá direto para a aba <b>Ideias</b>.</p>
         <div>
-          <label class="block text-[11px] font-semibold uppercase text-amber-200/80 mb-1">Observação / Nome da ideia (Opcional)</label>
-          <input type="text" id="post_obs_ideia" placeholder="Ex: Trend legal para fazer no palco" class="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+          <input type="text" id="post_obs_ideia" placeholder="Observação opcional" class="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
         </div>
       </div>
 
-      <!-- CAMPOS COMPLETOS DE POST PROGRAMADO -->
       <div id="boxCamposCompletos" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Formato do Conteúdo</label>
@@ -307,9 +277,7 @@
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-3">
           <div>
             <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Dia da Postagem</label>
-            <div id="pillsDiasPost" class="flex flex-wrap gap-1.5">
-              <!-- Pílulas dos dias do evento geradas via JS -->
-            </div>
+            <div id="pillsDiasPost" class="flex flex-wrap gap-1.5"></div>
           </div>
 
           <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800/80">
@@ -319,7 +287,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Status (Semáforo)</label>
+              <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Status</label>
               <select id="post_status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-white focus:outline-none focus:border-indigo-500">
                 <option value="Programado">📅 Programado</option>
                 <option value="Em produção">🟡 Em produção</option>
@@ -336,19 +304,16 @@
 
         <div>
           <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Legenda da Postagem</label>
-          <textarea id="post_legenda" rows="4" placeholder="Escreva a legenda aqui... As quebras de linha são preservadas." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+          <textarea id="post_legenda" rows="4" placeholder="Escreva a legenda..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
         </div>
       </div>
 
-      <!-- MÚLTIPLOS RESPONSÁVEIS -->
       <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
         <div class="flex items-center justify-between">
-          <label class="text-xs font-semibold uppercase text-slate-400">Responsáveis (Toque para marcar 1 ou mais)</label>
+          <label class="text-xs font-semibold uppercase text-slate-400">Responsáveis</label>
           <button type="button" onclick="promptNovaPessoa()" class="text-xs text-indigo-400 font-bold hover:underline">＋ Nova pessoa</button>
         </div>
-        <div id="pillsResponsaveisModal" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pt-1">
-          <!-- Renderizado via JS -->
-        </div>
+        <div id="pillsResponsaveisModal" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pt-1"></div>
       </div>
 
       <div class="flex gap-2 pt-2">
@@ -359,10 +324,7 @@
   </div>
 
   <script>
-    /**
-     * ⚠️ OBRIGATÓRIO PARA FUNCIONAR NO NETLIFY:
-     * Cole abaixo a URL /exec da sua implantação do Google Apps Script:
-     */
+    // Cole aqui a sua URL do Apps Script (/exec)
     const EXTERNAL_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxy_CBv6IEQaXvouR7DG1E8suthmk-pzXmvA_9TOMLT47_B6GG87rhgmbDu3A0JhKdm/exec";
 
     let state = {
@@ -399,9 +361,6 @@
       }, 30000);
     });
 
-    /**
-     * CONTROLE DE PIN E SEGURANÇA
-     */
     function abrirTelaPin(mostrarErro = false) {
       document.getElementById('erroPinMsg').classList.toggle('hidden', !mostrarErro);
       document.getElementById('viewPin').classList.remove('hidden');
@@ -434,7 +393,7 @@
     }
 
     function bloquearAppNovamente() {
-      if (!confirm('Deseja bloquear o DropPost neste aparelho? Será necessário digitar o PIN novamente.')) return;
+      if (!confirm('Deseja bloquear o DropPost neste aparelho?')) return;
       state.pinAcesso = '';
       localStorage.removeItem('dp_pin_acesso');
       abrirTelaPin(false);
@@ -490,7 +449,7 @@
             });
         } else {
           setLoading(false);
-          alert('Falta colar a sua URL /exec na variável EXTERNAL_WEB_APP_URL dentro do index.html!');
+          alert('Falta colar a URL /exec na variável EXTERNAL_WEB_APP_URL!');
           reject(new Error('URL não configurada'));
         }
       });
@@ -525,9 +484,6 @@
       document.getElementById('loadingBar').classList.toggle('hidden', !ativo);
     }
 
-    /**
-     * NÍVEL 1: LISTA DE EVENTOS
-     */
     function renderEventos() {
       const container = document.getElementById('listaEventos');
       if (state.eventos.length === 0) {
@@ -535,7 +491,7 @@
           <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-3">
             <div class="text-4xl">⚡</div>
             <h3 class="text-base font-bold text-white">Bem-vindo ao DropPost!</h3>
-            <p class="text-xs text-slate-400">Toque em "+ Novo Evento" para criar sua primeira programação de cobertura.</p>
+            <p class="text-xs text-slate-400">Toque em "+ Novo Evento" para começar.</p>
           </div>
         `;
         return;
@@ -596,9 +552,6 @@
       renderEventos();
     }
 
-    /**
-     * FILTRO DE EQUIPE (ORDEM ALFABÉTICA + MÚLTIPLOS RESPONSÁVEIS)
-     */
     function renderSelectFiltroEquipe() {
       const sel = document.getElementById('selectFiltroPessoa');
       const equipeOrdenada = [...state.equipe].sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
@@ -607,8 +560,8 @@
         state.filtroPessoa = 'TODOS';
       }
 
-      sel.innerHTML = `<option value="TODOS">👥 Quem sou eu: Todos da Equipe (${equipeOrdenada.length})</option>` +
-        equipeOrdenada.map(nome => `<option value="${escapeAttr(nome)}" ${state.filtroPessoa === nome ? 'selected' : ''}>👤 Filtrar: ${escapeHtml(nome)}</option>`).join('');
+      sel.innerHTML = `<option value="TODOS">👥 Equipe: Todos (${equipeOrdenada.length})</option>` +
+        equipeOrdenada.map(nome => `<option value="${escapeAttr(nome)}" ${state.filtroPessoa === nome ? 'selected' : ''}>👤 ${escapeHtml(nome)}</option>`).join('');
     }
 
     function selecionarFiltroPessoa(nome) {
@@ -618,7 +571,7 @@
     }
 
     async function promptNovaPessoa() {
-      const nome = prompt('Digite o nome do integrante da equipe:');
+      const nome = prompt('Digite o nome do integrante:');
       if (!nome || !nome.trim()) return;
       const limpo = nome.trim();
       if (!state.equipe.some(n => n.toLowerCase() === limpo.toLowerCase())) {
@@ -652,15 +605,9 @@
     }
 
     function extrairResponsaveis(str) {
-      return String(str || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean);
+      return String(str || '').split(',').map(s => s.trim()).filter(Boolean);
     }
 
-    /**
-     * ABAS E AGRUPAMENTO DE POSTS POR DIA
-     */
     function setAba(aba) {
       state.abaAtiva = aba;
       atualizarBotoesAba();
@@ -687,7 +634,6 @@
       const container = document.getElementById('listaPosts');
       const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
       const postsEvento = state.posts.filter(p => p.id_evento === state.eventoAtivoId);
-
       const filtradosPessoa = postsEvento.filter(p => postPertenceAPessoa(p, state.filtroPessoa));
 
       const ordenarCronologico = (a, b) => {
@@ -697,14 +643,9 @@
         return (a.horario || '99:99').localeCompare(b.horario || '99:99');
       };
 
-      const listaFila = filtradosPessoa
-        .filter(p => p.status_producao !== 'Postado' && p.status_producao !== 'Ideia')
-        .sort(ordenarCronologico);
-
+      const listaFila = filtradosPessoa.filter(p => p.status_producao !== 'Postado' && p.status_producao !== 'Ideia').sort(ordenarCronologico);
       const listaIdeias = filtradosPessoa.filter(p => p.status_producao === 'Ideia');
-      const listaFeitos = filtradosPessoa
-        .filter(p => p.status_producao === 'Postado')
-        .sort(ordenarCronologico);
+      const listaFeitos = filtradosPessoa.filter(p => p.status_producao === 'Postado').sort(ordenarCronologico);
 
       document.getElementById('badge_fila').textContent = listaFila.length;
       document.getElementById('badge_ideias').textContent = listaIdeias.length;
@@ -716,17 +657,10 @@
       if (state.abaAtiva === 'feitos') itens = listaFeitos;
 
       if (itens.length === 0) {
-        const mensagensVazias = {
-          fila:   { icone: '🔥', titulo: 'Nenhum post na fila!', sub: 'Toque em "+ Novo Post" para agendar um conteúdo.' },
-          ideias: { icone: '💡', titulo: 'Sem ideias pendentes', sub: 'Cole um link no campo de Título de um Novo Post para salvar uma referência rápida aqui!' },
-          feitos: { icone: '✔️', titulo: 'Nenhum post concluído ainda', sub: 'Os posts marcados como "Já foi postado" ficam arquivados aqui.' }
-        };
-        const m = mensagensVazias[state.abaAtiva];
         container.innerHTML = `
           <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-8 text-center space-y-2 mt-4">
-            <div class="text-3xl">${m.icone}</div>
-            <h3 class="text-sm font-bold text-white">${m.titulo}</h3>
-            <p class="text-xs text-slate-400 max-w-xs mx-auto">${m.sub}</p>
+            <div class="text-3xl">📭</div>
+            <h3 class="text-sm font-bold text-white">Nenhum item por aqui</h3>
           </div>
         `;
         return;
@@ -744,21 +678,14 @@
         gruposPorDia[diaKey].push(post);
       });
 
-      const chavesDias = Object.keys(gruposPorDia).sort();
       let htmlFinal = '';
-
-      chavesDias.forEach(diaKey => {
-        const labelDia = diaKey === 'SEM_DATA'
-          ? '📅 Sem data definida'
-          : `📅 Dia ${formatarDataBRComDiaSemana(diaKey)}`;
-
+      Object.keys(gruposPorDia).sort().forEach(diaKey => {
+        const labelDia = diaKey === 'SEM_DATA' ? '📅 Sem data' : `📅 Dia ${formatarDataBRComDiaSemana(diaKey)}`;
         htmlFinal += `
           <div class="pt-2 pb-1">
             <div class="flex items-center gap-3 mb-3">
               <div class="h-px bg-slate-800 flex-1"></div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 bg-slate-900 border border-indigo-500/30 px-3.5 py-1 rounded-full shadow-sm">
-                ${labelDia}
-              </span>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 bg-slate-900 border border-indigo-500/30 px-3.5 py-1 rounded-full shadow-sm">${labelDia}</span>
               <div class="h-px bg-slate-800 flex-1"></div>
             </div>
             <div class="space-y-3.5">
@@ -771,29 +698,10 @@
       container.innerHTML = htmlFinal;
     }
 
-    /**
-     * RENDERIZAÇÃO DOS CARDS E SEMÁFORO DE 3 ESTADOS
-     */
     function obterConfigSemaforo(status) {
-      if (status === 'Pronto') {
-        return {
-          label: '🟢 Pronto',
-          classes: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300',
-          proximo: 'Programado'
-        };
-      }
-      if (status === 'Em produção') {
-        return {
-          label: '🟡 Em produção',
-          classes: 'bg-amber-500/20 border-amber-500/40 text-amber-300',
-          proximo: 'Pronto'
-        };
-      }
-      return {
-        label: '📅 Programado',
-        classes: 'bg-slate-800 border-slate-600 text-slate-300',
-        proximo: 'Em produção'
-      };
+      if (status === 'Pronto') return { label: '🟢 Pronto', classes: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300', proximo: 'Programado' };
+      if (status === 'Em produção') return { label: '🟡 Em produção', classes: 'bg-amber-500/20 border-amber-500/40 text-amber-300', proximo: 'Pronto' };
+      return { label: '📅 Programado', classes: 'bg-slate-800 border-slate-600 text-slate-300', proximo: 'Em produção' };
     }
 
     function renderCardFila(post, ev) {
@@ -804,13 +712,11 @@
       const listaResp = extrairResponsaveis(post.responsavel);
 
       const badgeHorario = post.horario
-        ? (atrasado
-            ? `<span class="late-badge bg-red-500/20 border border-red-500 text-red-300 text-xs font-extrabold px-2.5 py-1 rounded-lg flex items-center gap-1">🚨 Atrasado • ${post.horario}</span>`
-            : `<span class="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">⏰ ${post.horario}</span>`)
+        ? (atrasado ? `<span class="late-badge bg-red-500/20 border border-red-500 text-red-300 text-xs font-extrabold px-2.5 py-1 rounded-lg">🚨 Atrasado • ${post.horario}</span>` : `<span class="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold px-2.5 py-1 rounded-lg">⏰ ${post.horario}</span>`)
         : `<span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-lg">Sem horário</span>`;
 
       const badgesResponsaveis = listaResp.length > 0
-        ? listaResp.map(nome => `<span class="bg-slate-800 border border-slate-700 text-slate-200 text-[11px] font-semibold px-2 py-0.5 rounded-md">👤 ${escapeHtml(nome)}</span>`).join('')
+        ? listaResp.map(n => `<span class="bg-slate-800 border border-slate-700 text-slate-200 text-[11px] font-semibold px-2 py-0.5 rounded-md">👤 ${escapeHtml(n)}</span>`).join('')
         : `<span class="text-xs text-slate-500">👤 Sem responsável</span>`;
 
       return `
@@ -820,7 +726,7 @@
               <span class="border ${estilo.badge} text-xs font-bold px-2.5 py-1 rounded-lg">${estilo.icon} ${escapeHtml(post.tipo_post)}</span>
               ${badgeHorario}
             </div>
-            <button onclick="alternarSemaforo('${post.id_post}', '${semaforo.proximo}')" title="Toque para mudar o status" class="border ${semaforo.classes} text-xs font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
+            <button onclick="alternarSemaforo('${post.id_post}', '${semaforo.proximo}')" class="border ${semaforo.classes} text-xs font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
               ${semaforo.label}
             </button>
           </div>
@@ -830,13 +736,12 @@
               <h3 class="text-base font-extrabold text-white leading-snug">${escapeHtml(post.titulo)}</h3>
               <div class="flex items-center gap-1.5 flex-wrap">
                 ${badgesResponsaveis}
-                ${post.link_referencia ? `<a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="text-[11px] bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 font-semibold px-2 py-0.5 rounded-md hover:bg-indigo-500/25">🔗 Referência ↗</a>` : ''}
+                ${post.link_referencia ? `<a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="text-[11px] bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 font-semibold px-2 py-0.5 rounded-md">🔗 Referência ↗</a>` : ''}
               </div>
             </div>
-
             <div class="flex items-center gap-1 shrink-0">
-              <button onclick="editarPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 text-xs" title="Editar">✏️</button>
-              <button onclick="confirmarExclusaoPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-red-400 rounded-lg bg-slate-800/80 text-xs" title="Excluir">🗑️</button>
+              <button onclick="editarPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 text-xs">✏️</button>
+              <button onclick="confirmarExclusaoPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-red-400 rounded-lg bg-slate-800/80 text-xs">🗑️</button>
             </div>
           </div>
 
@@ -844,17 +749,11 @@
             <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 space-y-2.5">
               <div class="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto select-text">${escapeHtml(post.legenda)}</div>
               <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
-                <button onclick="copiarLegenda('${post.id_post}', false, this)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 transition text-slate-200 font-semibold text-xs py-2 px-2.5 rounded-lg flex items-center justify-center gap-1">
-                  📋 Copiar Legenda
-                </button>
-                <button onclick="copiarLegenda('${post.id_post}', true, this)" class="bg-indigo-600/25 hover:bg-indigo-600/35 border border-indigo-500/40 active:scale-95 transition text-indigo-200 font-semibold text-xs py-2 px-2.5 rounded-lg flex items-center justify-center gap-1">
-                  #️⃣ Copiar + Final
-                </button>
+                <button onclick="copiarLegenda('${post.id_post}', false, this)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 transition text-slate-200 font-semibold text-xs py-2 px-2.5 rounded-lg flex items-center justify-center gap-1">📋 Copiar Legenda</button>
+                <button onclick="copiarLegenda('${post.id_post}', true, this)" class="bg-indigo-600/25 hover:bg-indigo-600/35 border border-indigo-500/40 active:scale-95 transition text-indigo-200 font-semibold text-xs py-2 px-2.5 rounded-lg flex items-center justify-center gap-1">#️⃣ Copiar + Final</button>
               </div>
             </div>
-          ` : `
-            <div class="text-xs text-slate-500 italic bg-slate-950/40 rounded-xl px-3 py-2">Sem legenda cadastrada.</div>
-          `}
+          ` : ''}
 
           <button onclick="marcarComoPostado('${post.id_post}')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] transition text-white font-bold text-sm py-2.5 rounded-xl shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5">
             <span>✅</span> Já foi postado
@@ -867,30 +766,13 @@
       return `
         <article class="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between">
-            <span class="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg">💡 Referência / Ideia</span>
+            <span class="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg">💡 Ideia</span>
             <button onclick="confirmarExclusaoPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-red-400 text-xs">🗑️</button>
           </div>
-
-          <div class="space-y-1">
-            <h3 class="text-sm font-bold text-white">${escapeHtml(post.titulo || 'Referência salva')}</h3>
-            <p class="text-xs text-slate-400">👤 Escalados/Sugerido: ${post.responsavel ? escapeHtml(post.responsavel) : 'Equipe'}</p>
-          </div>
-
-          ${post.link_referencia ? `
-            <a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="block bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-indigo-400 truncate hover:underline">
-              🔗 ${escapeHtml(post.link_referencia)}
-            </a>
-          ` : ''}
-
+          <h3 class="text-sm font-bold text-white">${escapeHtml(post.titulo || 'Referência')}</h3>
+          ${post.link_referencia ? `<a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="block bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-indigo-400 truncate hover:underline">🔗 ${escapeHtml(post.link_referencia)}</a>` : ''}
           <div class="flex gap-2 pt-1">
-            ${post.link_referencia ? `
-              <a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs py-2.5 rounded-xl text-center">
-                🔗 Abrir Link
-              </a>
-            ` : ''}
-            <button onclick="aprovarIdeia('${post.id_post}')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 rounded-xl">
-              🚀 Aprovar e Programar
-            </button>
+            <button onclick="aprovarIdeia('${post.id_post}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 rounded-xl">🚀 Aprovar e Programar</button>
           </div>
         </article>
       `;
@@ -901,43 +783,22 @@
       return `
         <article class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 space-y-2.5 opacity-80">
           <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5">
-              <span class="border ${estilo.badge} text-[11px] font-bold px-2 py-0.5 rounded-md">${estilo.icon} ${escapeHtml(post.tipo_post)}</span>
-              ${post.horario ? `<span class="text-xs text-slate-400 font-semibold">⏰ ${post.horario}</span>` : ''}
-            </div>
+            <span class="border ${estilo.badge} text-[11px] font-bold px-2 py-0.5 rounded-md">${estilo.icon} ${escapeHtml(post.tipo_post)}</span>
             <span class="bg-emerald-500/15 text-emerald-400 text-xs font-bold px-2.5 py-0.5 rounded-md">✔️ Postado</span>
           </div>
-
           <h3 class="text-sm font-bold text-slate-200 line-through">${escapeHtml(post.titulo)}</h3>
-          <p class="text-xs text-slate-400">👥 ${post.responsavel ? escapeHtml(post.responsavel) : 'Sem responsável'}</p>
-
           <div class="flex items-center gap-2 pt-1">
-            ${post.legenda ? `
-              <button onclick="copiarLegenda('${post.id_post}', true, this)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 rounded-lg">
-                📋 Copiar Legenda + Final
-              </button>
-            ` : ''}
-            <button onclick="voltarPostParaFila('${post.id_post}')" class="bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold px-3 py-2 rounded-lg">
-              ↩️ Voltar p/ Fila
-            </button>
+            <button onclick="voltarPostParaFila('${post.id_post}')" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold py-2 rounded-lg">↩️ Voltar p/ Fila</button>
           </div>
         </article>
       `;
     }
 
-    /**
-     * VERIFICAÇÃO INTELIGENTE DE ATRASO (DATA COMPLETA + HORÁRIO)
-     */
     function isPostAtrasado(dataPostStr, horarioStr) {
       if (!horarioStr || !/^\d{2}:\d{2}$/.test(horarioStr)) return false;
-
       const agora = new Date();
-      const ano = agora.getFullYear();
-      const mes = String(agora.getMonth() + 1).padStart(2, '0');
-      const dia = String(agora.getDate()).padStart(2, '0');
-      const hojeStr = `${ano}-${mes}-${dia}`;
+      const hojeStr = agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0') + '-' + String(agora.getDate()).padStart(2, '0');
       const horaAtual = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
-
       if (dataPostStr && /^\d{4}-\d{2}-\d{2}$/.test(dataPostStr)) {
         if (dataPostStr > hojeStr) return false;
         if (dataPostStr < hojeStr) return true;
@@ -945,15 +806,8 @@
       return horarioStr < horaAtual;
     }
 
-    /**
-     * MODAL DE EVENTO: MÚLTIPLOS DIAS
-     */
     function extrairDatasEvento(str) {
-      return String(str || '')
-        .split(',')
-        .map(d => d.trim())
-        .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-        .sort();
+      return String(str || '').split(',').map(d => d.trim()).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
     }
 
     function openModalEvento() {
@@ -970,7 +824,7 @@
     function openModalRodape() {
       const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
       if (!ev) return;
-      document.getElementById('modalEventoTitulo').textContent = 'Configurar Evento, Dias & Rodapé';
+      document.getElementById('modalEventoTitulo').textContent = 'Configurar Evento';
       document.getElementById('ev_id').value = ev.id_evento;
       document.getElementById('ev_nome').value = ev.nome;
       document.getElementById('ev_input_data').value = '';
@@ -982,7 +836,7 @@
 
     function adicionarDataAoEventoModal() {
       const val = document.getElementById('ev_input_data').value;
-      if (!val) return alert('Selecione uma data no calendário primeiro!');
+      if (!val) return alert('Selecione uma data!');
       if (!state.datasEventoModal.includes(val)) {
         state.datasEventoModal.push(val);
         state.datasEventoModal.sort();
@@ -997,10 +851,6 @@
 
     function renderPillsDatasEventoModal() {
       const container = document.getElementById('ev_lista_datas_pills');
-      if (state.datasEventoModal.length === 0) {
-        container.innerHTML = `<span class="text-xs text-slate-500 italic">Nenhum dia adicionado ainda.</span>`;
-        return;
-      }
       container.innerHTML = state.datasEventoModal.map(d => `
         <span class="bg-indigo-600/25 border border-indigo-500/40 text-indigo-200 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
           <span>🗓️ Dia ${formatarDataBR(d)}</span>
@@ -1009,96 +859,52 @@
       `).join('');
     }
 
-    function closeModalEvento() {
-      document.getElementById('modalEvento').classList.add('hidden');
-    }
+    function closeModalEvento() { document.getElementById('modalEvento').classList.add('hidden'); }
 
     async function salvarEventoForm() {
       const nome = document.getElementById('ev_nome').value.trim();
-      if (!nome) return alert('Informe o nome do evento!');
-
+      if (!nome) return alert('Informe o nome!');
       const inputData = document.getElementById('ev_input_data').value;
-      if (inputData && !state.datasEventoModal.includes(inputData)) {
-        state.datasEventoModal.push(inputData);
-        state.datasEventoModal.sort();
-      }
-
-      if (state.datasEventoModal.length === 0) {
-        return alert('Adicione pelo menos 1 dia para o evento!');
-      }
-
+      if (inputData && !state.datasEventoModal.includes(inputData)) state.datasEventoModal.push(inputData);
+      
       const payload = {
         id_evento: document.getElementById('ev_id').value,
         nome,
         data_evento: state.datasEventoModal.join(','),
         texto_final_padrao: document.getElementById('ev_rodape').value
       };
-
       closeModalEvento();
-      try {
-        const res = await callServer('saveEvento', payload);
-        aplicarDadosRecebidos(res);
-        mostrarToast('Evento salvo com sucesso!');
-      } catch (e) {
-        mostrarToast('Erro ao salvar evento: ' + e.message);
-      }
+      const res = await callServer('saveEvento', payload);
+      aplicarDadosRecebidos(res);
     }
 
-    /**
-     * MODAL DE POST: DIAS EM PÍLULAS + MÚLTIPLOS RESPONSÁVEIS
-     */
     function renderPillsDiasNoModalPost() {
       const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
       const datasEv = extrairDatasEvento(ev ? ev.data_evento : '');
       const container = document.getElementById('pillsDiasPost');
 
       if (datasEv.length === 0) {
-        const hoje = state.dataPostSelecionada || obterDataHojeISO();
-        state.dataPostSelecionada = hoje;
-        container.innerHTML = `<input type="date" value="${hoje}" onchange="state.dataPostSelecionada = this.value" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">`;
+        state.dataPostSelecionada = state.dataPostSelecionada || obterDataHojeISO();
+        container.innerHTML = `<input type="date" value="${state.dataPostSelecionada}" onchange="state.dataPostSelecionada = this.value" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">`;
         return;
       }
+      if (!state.dataPostSelecionada || !datasEv.includes(state.dataPostSelecionada)) state.dataPostSelecionada = datasEv[0];
 
-      if (!state.dataPostSelecionada || !datasEv.includes(state.dataPostSelecionada)) {
-        state.dataPostSelecionada = datasEv[0];
-      }
-
-      container.innerHTML = datasEv.map(d => {
-        const ativo = state.dataPostSelecionada === d;
-        const cls = ativo
-          ? 'bg-indigo-600 border-indigo-400 text-white font-extrabold shadow-md shadow-indigo-600/30'
-          : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 font-semibold';
-        return `
-          <button type="button" onclick="selecionarDiaPostModal('${d}')" class="border ${cls} text-xs px-3.5 py-2 rounded-xl transition active:scale-95">
-            🗓️ Dia ${formatarDataBR(d)}
-          </button>
-        `;
-      }).join('');
-    }
-
-    function selecionarDiaPostModal(dataISO) {
-      state.dataPostSelecionada = dataISO;
-      renderPillsDiasNoModalPost();
+      container.innerHTML = datasEv.map(d => `
+        <button type="button" onclick="state.dataPostSelecionada = '${d}'; renderPillsDiasNoModalPost();" class="border text-xs px-3.5 py-2 rounded-xl transition ${state.dataPostSelecionada === d ? 'bg-indigo-600 border-indigo-400 text-white font-extrabold' : 'bg-slate-800 border-slate-700 text-slate-300'}">
+          🗓️ Dia ${formatarDataBR(d)}
+        </button>
+      `).join('');
     }
 
     function renderPillsResponsaveisModal() {
       const container = document.getElementById('pillsResponsaveisModal');
-      const equipeOrdenada = [...state.equipe].sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
-
-      if (equipeOrdenada.length === 0) {
-        container.innerHTML = `<span class="text-xs text-slate-500 italic">Nenhuma pessoa cadastrada. Clique em "＋ Nova pessoa" acima.</span>`;
-        return;
-      }
-
+      const equipeOrdenada = [...state.equipe].sort((a, b) => a.localeCompare(b, 'pt-BR'));
       container.innerHTML = equipeOrdenada.map(nome => {
         const selecionado = state.responsaveisPostSelecionados.some(n => n.toLowerCase() === nome.toLowerCase());
-        const cls = selecionado
-          ? 'bg-indigo-600 border-indigo-400 text-white font-bold shadow-sm'
-          : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 font-medium';
         return `
-          <button type="button" onclick="toggleResponsavelModal('${escapeAttr(nome)}')" class="border ${cls} text-xs px-3 py-1.5 rounded-full transition active:scale-95 flex items-center gap-1">
-            <span>${selecionado ? '✓' : '👤'}</span>
-            <span>${escapeHtml(nome)}</span>
+          <button type="button" onclick="toggleResponsavelModal('${escapeAttr(nome)}')" class="border text-xs px-3 py-1.5 rounded-full transition ${selecionado ? 'bg-indigo-600 border-indigo-400 text-white font-bold' : 'bg-slate-800 border-slate-700 text-slate-300'}">
+            <span>${selecionado ? '✓' : '👤'}</span> ${escapeHtml(nome)}
           </button>
         `;
       }).join('');
@@ -1106,47 +912,28 @@
 
     function toggleResponsavelModal(nome) {
       const idx = state.responsaveisPostSelecionados.findIndex(n => n.toLowerCase() === nome.toLowerCase());
-      if (idx >= 0) {
-        state.responsaveisPostSelecionados.splice(idx, 1);
-      } else {
-        state.responsaveisPostSelecionados.push(nome);
-      }
+      if (idx >= 0) state.responsaveisPostSelecionados.splice(idx, 1);
+      else state.responsaveisPostSelecionados.push(nome);
       renderPillsResponsaveisModal();
     }
 
     function selecionarTipo(tipo) {
       state.tipoSelecionado = tipo;
       document.querySelectorAll('.tipo-btn').forEach(btn => {
-        const t = btn.getAttribute('data-tipo');
-        const ativo = t === tipo;
-        btn.className = ativo
-          ? 'tipo-btn py-2 px-2 rounded-xl text-xs font-extrabold border-2 border-indigo-400 bg-indigo-600/30 text-white transition'
-          : 'tipo-btn py-2 px-2 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400 transition';
+        const ativo = btn.getAttribute('data-tipo') === tipo;
+        btn.className = ativo ? 'tipo-btn py-2 px-2 rounded-xl text-xs font-extrabold border-2 border-indigo-400 bg-indigo-600/30 text-white transition' : 'tipo-btn py-2 px-2 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400 transition';
       });
     }
 
-    function isUrlValida(str) {
-      const s = String(str || '').trim();
-      return /^(https?:\/\/|www\.)\S+/i.test(s);
-    }
+    function isUrlValida(str) { return /^(https?:\/\/|www\.)\S+/i.test(String(str || '').trim()); }
 
     function verificarCondicionalLink(valor) {
-      const idExistente = document.getElementById('post_id').value;
-      if (idExistente) return;
-
+      if (document.getElementById('post_id').value) return;
       const ehLink = isUrlValida(valor);
       document.getElementById('post_modo_condicional').value = ehLink ? 'ideia' : 'post';
       document.getElementById('boxModoIdeia').classList.toggle('hidden', !ehLink);
       document.getElementById('boxCamposCompletos').classList.toggle('hidden', ehLink);
-
-      const btn = document.getElementById('btnSalvarPost');
-      if (ehLink) {
-        btn.textContent = '💡 Salvar em Ideias';
-        btn.className = 'flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm';
-      } else {
-        btn.textContent = 'Salvar na Fila';
-        btn.className = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm';
-      }
+      document.getElementById('btnSalvarPost').textContent = ehLink ? '💡 Salvar em Ideias' : 'Salvar na Fila';
     }
 
     function openModalPost() {
@@ -1158,11 +945,8 @@
       document.getElementById('post_status').value = 'Programado';
       document.getElementById('post_link_ref').value = '';
       document.getElementById('post_legenda').value = '';
-      document.getElementById('labelCampoPrincipal').textContent = 'Título do Post (ou cole um Link para salvar como Ideia) *';
-
       state.dataPostSelecionada = '';
       state.responsaveisPostSelecionados = state.filtroPessoa !== 'TODOS' ? [state.filtroPessoa] : [];
-
       selecionarTipo('Reels');
       renderPillsDiasNoModalPost();
       renderPillsResponsaveisModal();
@@ -1174,25 +958,19 @@
       const post = state.posts.find(p => p.id_post === idPost);
       if (!post) return;
       const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
-
       document.getElementById('modalPostHeader').textContent = 'Editar Postagem';
       document.getElementById('post_id').value = post.id_post;
       document.getElementById('post_campo_principal').value = post.titulo;
       document.getElementById('post_horario').value = post.horario || '';
-      document.getElementById('post_status').value = ['Programado', 'Em produção', 'Pronto'].includes(post.status_producao) ? post.status_producao : 'Programado';
+      document.getElementById('post_status').value = post.status_producao;
       document.getElementById('post_link_ref').value = post.link_referencia || '';
       document.getElementById('post_legenda').value = post.legenda || '';
-      document.getElementById('labelCampoPrincipal').textContent = 'Título da Postagem *';
-
       state.dataPostSelecionada = obterDataEfetivaPost(post, ev);
       state.responsaveisPostSelecionados = extrairResponsaveis(post.responsavel);
-
       document.getElementById('post_modo_condicional').value = 'post';
       document.getElementById('boxModoIdeia').classList.add('hidden');
       document.getElementById('boxCamposCompletos').classList.remove('hidden');
       document.getElementById('btnSalvarPost').textContent = 'Salvar Alterações';
-      document.getElementById('btnSalvarPost').className = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm';
-
       selecionarTipo(post.tipo_post || 'Reels');
       renderPillsDiasNoModalPost();
       renderPillsResponsaveisModal();
@@ -1202,112 +980,73 @@
     function aprovarIdeia(idPost) {
       const post = state.posts.find(p => p.id_post === idPost);
       if (!post) return;
-
-      document.getElementById('modalPostHeader').textContent = '🚀 Aprovar Ideia para a Fila';
+      document.getElementById('modalPostHeader').textContent = '🚀 Aprovar Ideia';
       document.getElementById('post_id').value = post.id_post;
       document.getElementById('post_campo_principal').value = isUrlValida(post.titulo) ? '' : post.titulo;
       document.getElementById('post_horario').value = '';
       document.getElementById('post_status').value = 'Programado';
       document.getElementById('post_link_ref').value = post.link_referencia || (isUrlValida(post.titulo) ? post.titulo : '');
       document.getElementById('post_legenda').value = '';
-      document.getElementById('labelCampoPrincipal').textContent = 'Defina o Título Oficial do Post *';
-
       state.dataPostSelecionada = '';
       state.responsaveisPostSelecionados = extrairResponsaveis(post.responsavel);
-
       document.getElementById('post_modo_condicional').value = 'post';
       document.getElementById('boxModoIdeia').classList.add('hidden');
       document.getElementById('boxCamposCompletos').classList.remove('hidden');
       document.getElementById('btnSalvarPost').textContent = '🚀 Aprovar e Enviar p/ Fila';
-      document.getElementById('btnSalvarPost').className = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm';
-
       selecionarTipo('Reels');
       renderPillsDiasNoModalPost();
       renderPillsResponsaveisModal();
       document.getElementById('modalPost').classList.remove('hidden');
     }
 
-    function closeModalPost() {
-      document.getElementById('modalPost').classList.add('hidden');
-    }
+    function closeModalPost() { document.getElementById('modalPost').classList.add('hidden'); }
 
     async function salvarPostForm() {
       const campoPrincipal = document.getElementById('post_campo_principal').value.trim();
-      if (!campoPrincipal) return alert('Preencha o campo principal (Título ou Link)!');
-
+      if (!campoPrincipal) return alert('Preencha o campo principal!');
       const modo = document.getElementById('post_modo_condicional').value;
       const idPost = document.getElementById('post_id').value;
-      const responsaveisOrdenados = [...state.responsaveisPostSelecionados]
-        .sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }))
-        .join(', ');
+      const responsaveisOrdenados = [...state.responsaveisPostSelecionados].sort((a, b) => a.localeCompare(b, 'pt-BR')).join(', ');
 
       let payload = {};
-
       if (modo === 'ideia' && !idPost) {
-        const obs = document.getElementById('post_obs_ideia').value.trim();
         payload = {
-          id_post: '',
-          id_evento: state.eventoAtivoId,
-          tipo_post: 'Reels',
-          titulo: obs || 'Referência: ' + campoPrincipal,
-          legenda: '',
-          horario: '',
-          link_referencia: campoPrincipal,
-          responsavel: responsaveisOrdenados,
-          status_producao: 'Ideia',
-          data_post: ''
+          id_post: '', id_evento: state.eventoAtivoId, tipo_post: 'Reels',
+          titulo: document.getElementById('post_obs_ideia').value.trim() || 'Referência: ' + campoPrincipal,
+          legenda: '', horario: '', link_referencia: campoPrincipal,
+          responsavel: responsaveisOrdenados, status_producao: 'Ideia', data_post: ''
         };
         state.abaAtiva = 'ideias';
       } else {
         payload = {
-          id_post: idPost,
-          id_evento: state.eventoAtivoId,
-          tipo_post: state.tipoSelecionado,
-          titulo: campoPrincipal,
-          legenda: document.getElementById('post_legenda').value,
-          horario: document.getElementById('post_horario').value,
-          link_referencia: document.getElementById('post_link_ref').value.trim(),
-          responsavel: responsaveisOrdenados,
-          status_producao: document.getElementById('post_status').value,
-          data_post: state.dataPostSelecionada
+          id_post: idPost, id_evento: state.eventoAtivoId, tipo_post: state.tipoSelecionado,
+          titulo: campoPrincipal, legenda: document.getElementById('post_legenda').value,
+          horario: document.getElementById('post_horario').value, link_referencia: document.getElementById('post_link_ref').value.trim(),
+          responsavel: responsaveisOrdenados, status_producao: document.getElementById('post_status').value, data_post: state.dataPostSelecionada
         };
         state.abaAtiva = 'fila';
       }
 
       closeModalPost();
-      atualizarBotoesAba();
-
-      try {
-        const res = await callServer('savePost', payload);
-        aplicarDadosRecebidos(res);
-        mostrarToast(modo === 'ideia' ? '💡 Salvo em Ideias!' : '🔥 Salvo na programação!');
-      } catch (e) {
-        mostrarToast('Erro ao salvar: ' + e.message);
-      }
+      const res = await callServer('savePost', payload);
+      aplicarDadosRecebidos(res);
     }
 
-    /**
-     * AÇÕES RÁPIDAS DO CARD
-     */
     function copiarLegenda(idPost, incluirRodape, btnEl) {
       const post = state.posts.find(p => p.id_post === idPost);
       if (!post) return;
       const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
-
       let textoFinal = post.legenda || '';
-      if (incluirRodape && ev && ev.texto_final_padrao) {
-        textoFinal = textoFinal.trim() + '\n\n' + ev.texto_final_padrao.trim();
-      }
+      if (incluirRodape && ev && ev.texto_final_padrao) textoFinal = textoFinal.trim() + '\n\n' + ev.texto_final_padrao.trim();
 
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(textoFinal).catch(() => fallbackCopy(textoFinal));
       } else {
         fallbackCopy(textoFinal);
       }
-
-      const originalHtml = btnEl.innerHTML;
+      const original = btnEl.innerHTML;
       btnEl.innerHTML = '✅ Copiado!';
-      setTimeout(() => { btnEl.innerHTML = originalHtml; }, 1800);
+      setTimeout(() => { btnEl.innerHTML = original; }, 1800);
     }
 
     function fallbackCopy(texto) {
@@ -1327,39 +1066,23 @@
       if (!post) return;
       post.status_producao = novoStatus;
       renderPosts();
-
-      try {
-        const res = await callServer('updatePostStatus', { id_post: idPost, status_producao: novoStatus });
-        aplicarDadosRecebidos(res);
-      } catch (e) {
-        mostrarToast('Erro ao mudar status: ' + e.message);
-      }
+      const res = await callServer('updatePostStatus', { id_post: idPost, status_producao: novoStatus });
+      aplicarDadosRecebidos(res);
     }
 
     async function marcarComoPostado(idPost) {
       const post = state.posts.find(p => p.id_post === idPost);
       if (!post) return;
-
-      const statusAnterior = post.status_producao;
+      const anterior = post.status_producao;
       post.status_producao = 'Postado';
       renderPosts();
-
-      mostrarToast('Post enviado para ✔️ Feitos!', {
-        id_post: idPost,
-        status_anterior: statusAnterior
-      });
-
-      try {
-        const res = await callServer('updatePostStatus', { id_post: idPost, status_producao: 'Postado' });
-        aplicarDadosRecebidos(res);
-      } catch (e) {
-        mostrarToast('Erro ao salvar status: ' + e.message);
-      }
+      mostrarToast('Enviado para Feitos!', { id_post: idPost, status_anterior: anterior });
+      const res = await callServer('updatePostStatus', { id_post: idPost, status_producao: 'Postado' });
+      aplicarDadosRecebidos(res);
     }
 
     async function voltarPostParaFila(idPost) {
       await alternarSemaforo(idPost, 'Pronto');
-      mostrarToast('Post devolvido para a 🔥 Fila!');
     }
 
     async function executarUndo() {
@@ -1373,11 +1096,9 @@
     function mostrarToast(msg, undoObj = null) {
       if (state.undoTimer) clearTimeout(state.undoTimer);
       state.undoData = undoObj;
-
       document.getElementById('toastMsg').textContent = msg;
       document.getElementById('toastUndoBtn').classList.toggle('hidden', !undoObj);
       document.getElementById('toastContainer').classList.remove('hidden');
-
       state.undoTimer = setTimeout(() => {
         document.getElementById('toastContainer').classList.add('hidden');
         state.undoData = null;
@@ -1385,55 +1106,37 @@
     }
 
     async function confirmarExclusaoPost(idPost) {
-      if (!confirm('Deseja realmente excluir este item?')) return;
-      try {
-        const res = await callServer('deletePost', { id_post: idPost });
-        aplicarDadosRecebidos(res);
-        mostrarToast('Item excluído.');
-      } catch (e) {
-        mostrarToast('Erro ao excluir: ' + e.message);
-      }
+      if (!confirm('Deseja excluir este item?')) return;
+      const res = await callServer('deletePost', { id_post: idPost });
+      aplicarDadosRecebidos(res);
     }
 
     async function confirmarExclusaoEvento(idEvento) {
-      if (!confirm('Excluir este evento e TODOS os posts dentro dele?')) return;
-      try {
-        const res = await callServer('deleteEvento', { id_evento: idEvento });
-        aplicarDadosRecebidos(res);
-        mostrarToast('Evento excluído.');
-      } catch (e) {
-        mostrarToast('Erro ao excluir evento: ' + e.message);
-      }
+      if (!confirm('Excluir evento e todos os posts?')) return;
+      const res = await callServer('deleteEvento', { id_evento: idEvento });
+      aplicarDadosRecebidos(res);
     }
 
-    /**
-     * UTILITÁRIOS
-     */
     function obterDataHojeISO() {
-      const agora = new Date();
-      return agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0') + '-' + String(agora.getDate()).padStart(2, '0');
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
     function formatarDataBR(yyyyMMdd) {
-      const partes = String(yyyyMMdd).split('-');
-      if (partes.length !== 3) return yyyyMMdd;
-      return `${partes[2]}/${partes[1]}`;
+      const p = String(yyyyMMdd).split('-');
+      return p.length === 3 ? `${p[2]}/${p[1]}` : yyyyMMdd;
     }
 
     function formatarDataBRComDiaSemana(yyyyMMdd) {
-      const partes = String(yyyyMMdd).split('-');
-      if (partes.length !== 3) return yyyyMMdd;
-      const dt = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      const p = String(yyyyMMdd).split('-');
+      if (p.length !== 3) return yyyyMMdd;
+      const dt = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
       const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-      return `${partes[2]}/${partes[1]} • ${dias[dt.getDay()]}`;
+      return `${p[2]}/${p[1]} • ${dias[dt.getDay()]}`;
     }
 
     function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function escapeAttr(str) {
