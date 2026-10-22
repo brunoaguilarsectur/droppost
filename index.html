@@ -19,16 +19,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    html, body {
-      background-color: #0f172a;
-      color: #f8fafc;
+    
+    /* CORREÇÃO DO SCROLL: Permite que a página role livremente em qualquer lugar */
+    html { 
+      background-color: #0f172a; 
+      color: #f8fafc; 
+      height: 100%;
+      overflow-y: auto; /* Força a barra de rolagem vertical */
+    }
+    body { 
+      background-color: #0f172a; 
+      color: #f8fafc; 
       width: 100%;
-      min-height: 100dvh;
+      min-height: 100%;
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      overscroll-behavior-y: none;
+      position: relative;
     }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     @keyframes pulseRed {
@@ -354,7 +363,7 @@
      * ⚠️ OBRIGATÓRIO PARA FUNCIONAR NO NETLIFY:
      * Cole abaixo a URL /exec da sua implantação do Google Apps Script:
      */
-    const EXTERNAL_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxy_CBv6IEQaXvouR7DG1E8suthmk-pzXmvA_9TOMLT47_B6GG87rhgmbDu3A0JhKdm/exec";
+    const EXTERNAL_WEB_APP_URL = "COLE_SUA_URL_EXEC_AQUI";
 
     let state = {
       pinAcesso: localStorage.getItem('dp_pin_acesso') || '',
