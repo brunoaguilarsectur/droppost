@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>DropPost • Eventos</title>
+
+  <!-- BLOQUEIA INDEXAÇÃO NO GOOGLE (Privacidade do Link) -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- CONFIGURAÇÕES PARA PARECER APP NATIVO NO CELULAR (iOS / Android) -->
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DropPost">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    html, body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      width: 100%;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overscroll-behavior-y: none;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+      50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    }
+    .late-badge { animation: pulseRed 2s infinite; }
+  </style>
+</head>
+<body class="min-h-screen pb-28 select-none">
+
+  <!-- BARRA DE CARREGAMENTO -->
+  <div id="loadingBar" class="fixed top-0 left-0 right-0 h-1 bg-indigo-500 animate-pulse z-50 hidden"></div>
+
+  <!-- =========================================================
+       TELA DE BLOQUEIO POR PIN DA EQUIPE
+       ========================================================= -->
+  <div id="viewPin" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-6 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-xs rounded-3xl p-6 text-center space-y-5 shadow-2xl">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-3xl">
+        ⚡
+      </div>
+      <div>
+        <h1 class="text-xl font-black text-white tracking-tight">DropPost</h1>
+        <p class="text-xs text-slate-400 mt-1">Digite o PIN da equipe para acessar a programação de eventos</p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); confirmarPinTela();" class="space-y-3">
+        <input
+          type="password"
+          id="inputPinAcesso"
+          inputmode="numeric"
+          placeholder="••••"
+          class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3.5 text-center text-xl font-black tracking-[0.4em] text-white focus:outline-none focus:border-indigo-500"
+        >
+        <p id="erroPinMsg" class="text-xs text-red-400 font-semibold hidden">❌ PIN incorreto. Tente novamente.</p>
+        <button
+          type="submit"
+          id="btnEntrarPin"
+          class="w-full bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:from-indigo-500 hover:to-fuchsia-500 active:scale-95 transition text-white font-bold py-3.5 rounded-2xl text-sm shadow-lg shadow-indigo-600/30"
+        >
+          Liberar Acesso
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       NÍVEL 1: LOBBY DE EVENTOS (DROPPOST)
+       ========================================================= -->
+  <div id="viewEventos" class="max-w-lg mx-auto px-4 pt-6">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xl font-black text-white">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-2xl font-black text-white tracking-tight">DropPost</h1>
+            <span class="text-[10px] font-bold uppercase tracking-widest bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full">App</span>
+          </div>
+          <p class="text-xs text-slate-400">Programação e cobertura em tempo real</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button onclick="openModalEvento()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-1 shrink-0">
+          <span class="text-sm">＋</span> Novo Evento
+        </button>
+        <button onclick="bloquearAppNovamente()" title="Bloquear PIN" class="bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs px-2.5 py-2.5 rounded-xl">
+          🔒
+        </button>
+      </div>
+    </div>
+
+    <div id="listaEventos" class="space-y-3">
+      <!-- Renderizado via JS -->
+    </div>
+  </div>
+
+  <!-- =========================================================
+       NÍVEL 2: PAINEL DO EVENTO SELECIONADO
+       ========================================================= -->
+  <div id="viewPainel" class="hidden">
+    <!-- CABEÇALHO FIXO -->
+    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 pt-3 pb-3">
+      <div class="max-w-lg mx-auto space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <button onclick="voltarParaEventos()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1 shrink-0">
+            <span>⇄</span> Eventos
+          </button>
+
+          <div class="text-center min-w-0 flex-1">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-400 block leading-none">⚡ DropPost</span>
+            <h2 id="headerNomeEvento" class="font-bold text-sm text-white truncate mt-0.5">Nome do Evento</h2>
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="openModalRodape()" title="Configurar Evento, Dias e Rodapé" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-indigo-300 text-xs font-semibold px-2.5 py-2 rounded-lg">
+              ⚙️ Config
+            </button>
+            <button onclick="syncData()" title="Atualizar" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 text-xs px-2.5 py-2 rounded-lg">
+              🔄
+            </button>
+          </div>
+        </div>
+
+        <!-- SELETOR "QUEM SOU EU?" (ORDEM ALFABÉTICA / SUPORTA EQUIPES GRANDES) -->
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1">
+            <select id="selectFiltroPessoa" onchange="selecionarFiltroPessoa(this.value)" class="w-full bg-slate-800 border border-slate-700 text-white text-xs font-semibold rounded-xl px-3 py-2.5 appearance-none focus:outline-none focus:border-indigo-500 pr-8">
+              <option value="TODOS">👥 Equipe: Ver Todos os Posts</option>
+            </select>
+            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">▾</span>
+          </div>
+
+          <button onclick="promptNovaPessoa()" class="bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-xs font-bold px-3 py-2.5 rounded-xl shrink-0 active:scale-95 transition">
+            ＋ Pessoa
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- LISTA DE CARDS DO EVENTO (AGRUPADOS POR DIA) -->
+    <main class="max-w-lg mx-auto px-4 pt-4">
+      <div id="listaPosts" class="space-y-4">
+        <!-- Cards renderizados via JS -->
+      </div>
+    </main>
+
+    <!-- BOTÃO FLUTUANTE (+ NOVO POST / IDEIA) -->
+    <button onclick="openModalPost()" class="fixed bottom-20 right-5 z-30 bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:from-indigo-500 hover:to-fuchsia-500 active:scale-95 transition text-white font-bold px-5 py-3.5 rounded-2xl shadow-xl shadow-indigo-600/40 flex items-center gap-2">
+      <span class="text-lg leading-none">＋</span>
+      <span class="text-sm">Novo Post</span>
+    </button>
+
+    <!-- NAVEGAÇÃO INFERIOR FIXA (3 ABAS) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-800">
+      <div class="max-w-lg mx-auto grid grid-cols-3 h-16">
+        <button onclick="setAba('fila')" id="tabBtn_fila" class="flex flex-col items-center justify-center gap-0.5 text-indigo-400 font-semibold border-t-2 border-indigo-500">
+          <div class="flex items-center gap-1 text-sm">
+            <span>🔥</span><span>Fila</span>
+            <span id="badge_fila" class="bg-indigo-500/20 text-indigo-300 text-[11px] px-1.5 py-0.2 rounded-full">0</span>
+          </div>
+        </button>
+
+        <button onclick="setAba('ideias')" id="tabBtn_ideias" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 font-medium border-t-2 border-transparent">
+          <div class="flex items-center gap-1 text-sm">
+            <span>💡</span><span>Ideias</span>
+            <span id="badge_ideias" class="bg-slate-800 text-slate-400 text-[11px] px-1.5 py-0.2 rounded-full">0</span>
+          </div>
+        </button>
+
+        <button onclick="setAba('feitos')" id="tabBtn_feitos" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 font-medium border-t-2 border-transparent">
+          <div class="flex items-center gap-1 text-sm">
+            <span>✔️</span><span>Feitos</span>
+            <span id="badge_feitos" class="bg-slate-800 text-slate-400 text-[11px] px-1.5 py-0.2 rounded-full">0</span>
+          </div>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- =========================================================
+       TOAST DE NOTIFICAÇÃO + BOTÃO DESFAZER
+       ========================================================= -->
+  <div id="toastContainer" class="fixed bottom-20 left-4 right-4 max-w-md mx-auto z-50 hidden">
+    <div class="bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3">
+      <span id="toastMsg" class="text-sm font-medium">Post marcado como feito!</span>
+      <button id="toastUndoBtn" onclick="executarUndo()" class="hidden bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold px-3 py-1.5 rounded-lg shrink-0 active:scale-95">
+        ↩️ Desfazer
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 1: CRIAR / EDITAR EVENTO (COM MÚLTIPLOS DIAS)
+       ========================================================= -->
+  <div id="modalEvento" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="modalEventoTitulo" class="text-lg font-bold text-white">Novo Evento</h3>
+        <button onclick="closeModalEvento()" class="text-slate-400 hover:text-white text-xl px-2">✕</button>
+      </div>
+
+      <input type="hidden" id="ev_id">
+
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nome do Evento *</label>
+        <input type="text" id="ev_nome" placeholder="Ex: Festival de Cultura 2026" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <!-- SELETOR DE MÚLTIPLOS DIAS DO EVENTO -->
+      <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2.5">
+        <label class="block text-xs font-semibold uppercase text-slate-300">Dias de Duração do Evento *</label>
+        <div class="flex gap-2">
+          <input type="date" id="ev_input_data" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <button type="button" onclick="adicionarDataAoEventoModal()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold px-3.5 py-2 rounded-xl shrink-0">
+            ＋ Adicionar Dia
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400">Adicione todos os dias do evento (ex: sexta, sábado e domingo).</p>
+        <div id="ev_lista_datas_pills" class="flex flex-wrap gap-1.5 pt-1">
+          <!-- Pílulas de datas adicionadas -->
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Texto Final Padrão (Frase + @ + Hashtags)</label>
+        <p class="text-[11px] text-slate-400 mb-1.5">Copiado junto quando alguém tocar em "#️⃣ Copiar + Final".</p>
+        <textarea id="ev_rodape" rows="4" placeholder="Ex: Viva essa experiência com a gente! 🚀&#10;Realização: @culturasbo&#10;#Evento #Cultura" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModalEvento()" class="flex-1 bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl text-sm">Cancelar</button>
+        <button onclick="salvarEventoForm()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm">Salvar Evento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 2: CRIAR / EDITAR POST (DIAS EM PÍLULA + MULTI-RESPONSÁVEIS)
+       ========================================================= -->
+  <div id="modalPost" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="modalPostHeader" class="text-lg font-bold text-white">Novo Item</h3>
+        <button onclick="closeModalPost()" class="text-slate-400 hover:text-white text-xl px-2">✕</button>
+      </div>
+
+      <input type="hidden" id="post_id">
+      <input type="hidden" id="post_modo_condicional" value="post">
+
+      <!-- CAMPO PRINCIPAL CONDICIONAL -->
+      <div>
+        <label id="labelCampoPrincipal" class="block text-xs font-semibold uppercase text-slate-400 mb-1">
+          Título do Post (ou cole um Link para salvar como Ideia) *
+        </label>
+        <input type="text" id="post_campo_principal" oninput="verificarCondicionalLink(this.value)" placeholder="Ex: Abertura dos Portões ou https://..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <!-- AVISO DO MODO IDEIA CONDICIONAL -->
+      <div id="boxModoIdeia" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 space-y-2">
+        <div class="flex items-center gap-2 text-amber-300 font-bold text-xs">
+          <span>💡</span>
+          <span>Link detectado! Modo Referência Rápida ativado.</span>
+        </div>
+        <p class="text-xs text-slate-300">Este link irá direto para a aba <b>Ideias</b>. Depois você pode aprová-lo e definir dia, horário e legenda.</p>
+        <div>
+          <label class="block text-[11px] font-semibold uppercase text-amber-200/80 mb-1">Observação / Nome da ideia (Opcional)</label>
+          <input type="text" id="post_obs_ideia" placeholder="Ex: Trend legal para fazer no palco" class="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+        </div>
+      </div>
+
+      <!-- CAMPOS COMPLETOS DE POST PROGRAMADO -->
+      <div id="boxCamposCompletos" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Formato do Conteúdo</label>
+          <div class="grid grid-cols-4 gap-2" id="seletorTipoPost">
+            <button type="button" onclick="selecionarTipo('Reels')" data-tipo="Reels" class="tipo-btn py-2 px-2 rounded-xl text-xs font-bold border transition">🎬 Reels</button>
+            <button type="button" onclick="selecionarTipo('Stories')" data-tipo="Stories" class="tipo-btn py-2 px-2 rounded-xl text-xs font-bold border transition">📱 Stories</button>
+            <button type="button" onclick="selecionarTipo('Carrossel')" data-tipo="Carrossel" class="tipo-btn py-2 px-2 rounded-xl text-xs font-bold border transition">🖼️ Carrossel</button>
+            <button type="button" onclick="selecionarTipo('Post')" data-tipo="Post" class="tipo-btn py-2 px-2 rounded-xl text-xs font-bold border transition">📌 Post</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Dia da Postagem</label>
+            <div id="pillsDiasPost" class="flex flex-wrap gap-1.5">
+              <!-- Pílulas dos dias do evento geradas via JS -->
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800/80">
+            <div>
+              <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Horário</label>
+              <input type="time" id="post_horario" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Status (Semáforo)</label>
+              <select id="post_status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-white focus:outline-none focus:border-indigo-500">
+                <option value="Programado">📅 Programado</option>
+                <option value="Em produção">🟡 Em produção</option>
+                <option value="Pronto">🟢 Pronto</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Link de Referência (Opcional)</label>
+          <input type="url" id="post_link_ref" placeholder="https://instagram.com/..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Legenda da Postagem</label>
+          <textarea id="post_legenda" rows="4" placeholder="Escreva a legenda aqui... As quebras de linha são preservadas." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+      </div>
+
+      <!-- MÚLTIPLOS RESPONSÁVEIS -->
+      <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-semibold uppercase text-slate-400">Responsáveis (Toque para marcar 1 ou mais)</label>
+          <button type="button" onclick="promptNovaPessoa()" class="text-xs text-indigo-400 font-bold hover:underline">＋ Nova pessoa</button>
+        </div>
+        <div id="pillsResponsaveisModal" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pt-1">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeModalPost()" class="flex-1 bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl text-sm">Cancelar</button>
+        <button type="button" id="btnSalvarPost" onclick="salvarPostForm()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm">Salvar na Fila</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ⚠️ OBRIGATÓRIO PARA FUNCIONAR NO NETLIFY:
+     * Cole abaixo a URL /exec da sua implantação do Google Apps Script:
+     */
+    const EXTERNAL_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxy_CBv6IEQaXvouR7DG1E8suthmk-pzXmvA_9TOMLT47_B6GG87rhgmbDu3A0JhKdm/exec";
+
+    let state = {
+      pinAcesso: localStorage.getItem('dp_pin_acesso') || '',
+      eventos: [],
+      posts: [],
+      equipe: [],
+      eventoAtivoId: localStorage.getItem('dp_eventoAtivoId') || null,
+      abaAtiva: 'fila',
+      filtroPessoa: localStorage.getItem('dp_filtroPessoa') || 'TODOS',
+      tipoSelecionado: 'Reels',
+      datasEventoModal: [],
+      dataPostSelecionada: '',
+      responsaveisPostSelecionados: [],
+      undoData: null,
+      undoTimer: null
+    };
+
+    const FORMATO_STYLES = {
+      'Reels':     { badge: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40', icon: '🎬' },
+      'Stories':   { badge: 'bg-orange-500/20 text-orange-300 border-orange-500/40',   icon: '📱' },
+      'Carrossel': { badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40',         icon: '🖼️' },
+      'Post':      { badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',         icon: '📌' }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!state.pinAcesso) {
+        abrirTelaPin(false);
+      } else {
+        syncData();
+      }
+      setInterval(() => {
+        if (state.pinAcesso && state.eventoAtivoId && state.abaAtiva === 'fila') renderPosts();
+      }, 30000);
+    });
+
+    /**
+     * CONTROLE DE PIN E SEGURANÇA
+     */
+    function abrirTelaPin(mostrarErro = false) {
+      document.getElementById('erroPinMsg').classList.toggle('hidden', !mostrarErro);
+      document.getElementById('viewPin').classList.remove('hidden');
+      setTimeout(() => document.getElementById('inputPinAcesso').focus(), 100);
+    }
+
+    async function confirmarPinTela() {
+      const pinDigitado = document.getElementById('inputPinAcesso').value.trim();
+      if (!pinDigitado) return;
+
+      const btn = document.getElementById('btnEntrarPin');
+      btn.textContent = 'Verificando...';
+      btn.disabled = true;
+
+      state.pinAcesso = pinDigitado;
+      try {
+        const res = await callServer('getInitialData');
+        localStorage.setItem('dp_pin_acesso', pinDigitado);
+        document.getElementById('viewPin').classList.add('hidden');
+        document.getElementById('inputPinAcesso').value = '';
+        aplicarDadosRecebidos(res);
+      } catch (e) {
+        state.pinAcesso = '';
+        localStorage.removeItem('dp_pin_acesso');
+        abrirTelaPin(true);
+      } finally {
+        btn.textContent = 'Liberar Acesso';
+        btn.disabled = false;
+      }
+    }
+
+    function bloquearAppNovamente() {
+      if (!confirm('Deseja bloquear o DropPost neste aparelho? Será necessário digitar o PIN novamente.')) return;
+      state.pinAcesso = '';
+      localStorage.removeItem('dp_pin_acesso');
+      abrirTelaPin(false);
+    }
+
+    function callServer(action, data = {}) {
+      setLoading(true);
+      const payload = { action, data, pin: state.pinAcesso };
+
+      return new Promise((resolve, reject) => {
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(res => {
+              setLoading(false);
+              if (res && res.ok) resolve(res.data);
+              else {
+                if (res && res.error === 'PIN_INVALIDO') {
+                  state.pinAcesso = '';
+                  localStorage.removeItem('dp_pin_acesso');
+                  abrirTelaPin(true);
+                }
+                reject(new Error(res ? res.error : 'Erro desconhecido'));
+              }
+            })
+            .withFailureHandler(err => {
+              setLoading(false);
+              reject(err);
+            })
+            .handleClientAction(payload);
+        } else if (EXTERNAL_WEB_APP_URL && EXTERNAL_WEB_APP_URL !== 'COLE_SUA_URL_EXEC_AQUI') {
+          fetch(EXTERNAL_WEB_APP_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          })
+            .then(r => r.json())
+            .then(res => {
+              setLoading(false);
+              if (res && res.ok) resolve(res.data);
+              else {
+                if (res && res.error === 'PIN_INVALIDO') {
+                  state.pinAcesso = '';
+                  localStorage.removeItem('dp_pin_acesso');
+                  abrirTelaPin(true);
+                }
+                reject(new Error(res ? res.error : 'Erro na resposta da API'));
+              }
+            })
+            .catch(err => {
+              setLoading(false);
+              reject(err);
+            });
+        } else {
+          setLoading(false);
+          alert('Falta colar a sua URL /exec na variável EXTERNAL_WEB_APP_URL dentro do index.html!');
+          reject(new Error('URL não configurada'));
+        }
+      });
+    }
+
+    async function syncData() {
+      try {
+        const res = await callServer('getInitialData');
+        aplicarDadosRecebidos(res);
+      } catch (e) {
+        if (e.message !== 'PIN_INVALIDO') {
+          mostrarToast('Erro ao sincronizar: ' + e.message);
+        }
+      }
+    }
+
+    function aplicarDadosRecebidos(res) {
+      if (!res) return;
+      state.eventos = res.eventos || [];
+      state.posts = res.posts || [];
+      state.equipe = (res.equipe || []).sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+
+      const evExiste = state.eventos.some(e => e.id_evento === state.eventoAtivoId);
+      if (state.eventoAtivoId && evExiste) {
+        abrirPainelEvento(state.eventoAtivoId, false);
+      } else {
+        voltarParaEventos();
+      }
+    }
+
+    function setLoading(ativo) {
+      document.getElementById('loadingBar').classList.toggle('hidden', !ativo);
+    }
+
+    /**
+     * NÍVEL 1: LISTA DE EVENTOS
+     */
+    function renderEventos() {
+      const container = document.getElementById('listaEventos');
+      if (state.eventos.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-3">
+            <div class="text-4xl">⚡</div>
+            <h3 class="text-base font-bold text-white">Bem-vindo ao DropPost!</h3>
+            <p class="text-xs text-slate-400">Toque em "+ Novo Evento" para criar sua primeira programação de cobertura.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = state.eventos.map(ev => {
+        const postsEv = state.posts.filter(p => p.id_evento === ev.id_evento);
+        const naFila = postsEv.filter(p => p.status_producao !== 'Postado' && p.status_producao !== 'Ideia').length;
+        const ideias = postsEv.filter(p => p.status_producao === 'Ideia').length;
+        const feitos = postsEv.filter(p => p.status_producao === 'Postado').length;
+        const datasArr = extrairDatasEvento(ev.data_evento);
+        const badgesDatas = datasArr.map(d => `<span class="text-[11px] bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 font-semibold px-2 py-0.5 rounded-md">Dia ${formatarDataBR(d)}</span>`).join('');
+
+        return `
+          <div onclick="abrirPainelEvento('${ev.id_evento}', true)" class="bg-slate-900 hover:bg-slate-800/90 active:scale-[0.99] transition border border-slate-800 rounded-2xl p-4 cursor-pointer flex items-center justify-between gap-3">
+            <div class="space-y-2 min-w-0">
+              <div>
+                <h3 class="font-bold text-base text-white truncate">${escapeHtml(ev.nome)}</h3>
+                ${badgesDatas ? `<div class="flex flex-wrap gap-1 mt-1">${badgesDatas}</div>` : ''}
+              </div>
+              <div class="flex items-center gap-3 text-xs text-slate-400">
+                <span>🔥 ${naFila} na fila</span>
+                <span>💡 ${ideias} ideias</span>
+                <span>✔️ ${feitos} feitos</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="event.stopPropagation(); confirmarExclusaoEvento('${ev.id_evento}')" class="p-2 text-slate-500 hover:text-red-400 text-xs">🗑️</button>
+              <span class="text-slate-400 text-lg">➔</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function abrirPainelEvento(idEvento, resetAba = false) {
+      state.eventoAtivoId = idEvento;
+      localStorage.setItem('dp_eventoAtivoId', idEvento);
+      if (resetAba) state.abaAtiva = 'fila';
+
+      const ev = state.eventos.find(e => e.id_evento === idEvento);
+      if (!ev) return voltarParaEventos();
+
+      document.getElementById('headerNomeEvento').textContent = ev.nome;
+      document.getElementById('viewEventos').classList.add('hidden');
+      document.getElementById('viewPainel').classList.remove('hidden');
+
+      renderSelectFiltroEquipe();
+      atualizarBotoesAba();
+      renderPosts();
+    }
+
+    function voltarParaEventos() {
+      state.eventoAtivoId = null;
+      localStorage.removeItem('dp_eventoAtivoId');
+      document.getElementById('viewPainel').classList.add('hidden');
+      document.getElementById('viewEventos').classList.remove('hidden');
+      renderEventos();
+    }
+
+    /**
+     * FILTRO DE EQUIPE (ORDEM ALFABÉTICA + MÚLTIPLOS RESPONSÁVEIS)
+     */
+    function renderSelectFiltroEquipe() {
+      const sel = document.getElementById('selectFiltroPessoa');
+      const equipeOrdenada = [...state.equipe].sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+
+      if (state.filtroPessoa !== 'TODOS' && !equipeOrdenada.includes(state.filtroPessoa)) {
+        state.filtroPessoa = 'TODOS';
+      }
+
+      sel.innerHTML = `<option value="TODOS">👥 Quem sou eu: Todos da Equipe (${equipeOrdenada.length})</option>` +
+        equipeOrdenada.map(nome => `<option value="${escapeAttr(nome)}" ${state.filtroPessoa === nome ? 'selected' : ''}>👤 Filtrar: ${escapeHtml(nome)}</option>`).join('');
+    }
+
+    function selecionarFiltroPessoa(nome) {
+      state.filtroPessoa = nome;
+      localStorage.setItem('dp_filtroPessoa', nome);
+      renderPosts();
+    }
+
+    async function promptNovaPessoa() {
+      const nome = prompt('Digite o nome do integrante da equipe:');
+      if (!nome || !nome.trim()) return;
+      const limpo = nome.trim();
+      if (!state.equipe.some(n => n.toLowerCase() === limpo.toLowerCase())) {
+        state.equipe.push(limpo);
+        state.equipe.sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+      }
+
+      if (!document.getElementById('modalPost').classList.contains('hidden')) {
+        if (!state.responsaveisPostSelecionados.includes(limpo)) {
+          state.responsaveisPostSelecionados.push(limpo);
+        }
+        renderPillsResponsaveisModal();
+      }
+      renderSelectFiltroEquipe();
+
+      try {
+        const res = await callServer('addMembroEquipe', { nome: limpo });
+        aplicarDadosRecebidos(res);
+        if (!document.getElementById('modalPost').classList.contains('hidden')) {
+          renderPillsResponsaveisModal();
+        }
+      } catch (e) {
+        mostrarToast('Erro ao salvar pessoa: ' + e.message);
+      }
+    }
+
+    function postPertenceAPessoa(post, nomeFiltro) {
+      if (!nomeFiltro || nomeFiltro === 'TODOS') return true;
+      const lista = extrairResponsaveis(post.responsavel).map(n => n.toLowerCase());
+      return lista.includes(nomeFiltro.toLowerCase());
+    }
+
+    function extrairResponsaveis(str) {
+      return String(str || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    /**
+     * ABAS E AGRUPAMENTO DE POSTS POR DIA
+     */
+    function setAba(aba) {
+      state.abaAtiva = aba;
+      atualizarBotoesAba();
+      renderPosts();
+    }
+
+    function atualizarBotoesAba() {
+      ['fila', 'ideias', 'feitos'].forEach(aba => {
+        const btn = document.getElementById('tabBtn_' + aba);
+        const ativo = state.abaAtiva === aba;
+        btn.className = ativo
+          ? 'flex flex-col items-center justify-center gap-0.5 text-indigo-400 font-bold border-t-2 border-indigo-500 bg-slate-800/30'
+          : 'flex flex-col items-center justify-center gap-0.5 text-slate-400 font-medium border-t-2 border-transparent';
+      });
+    }
+
+    function obterDataEfetivaPost(post, ev) {
+      if (post.data_post) return post.data_post;
+      const datasEv = extrairDatasEvento(ev ? ev.data_evento : '');
+      return datasEv.length > 0 ? datasEv[0] : '';
+    }
+
+    function renderPosts() {
+      const container = document.getElementById('listaPosts');
+      const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
+      const postsEvento = state.posts.filter(p => p.id_evento === state.eventoAtivoId);
+
+      const filtradosPessoa = postsEvento.filter(p => postPertenceAPessoa(p, state.filtroPessoa));
+
+      const ordenarCronologico = (a, b) => {
+        const dA = obterDataEfetivaPost(a, ev) || '9999-99-99';
+        const dB = obterDataEfetivaPost(b, ev) || '9999-99-99';
+        if (dA !== dB) return dA.localeCompare(dB);
+        return (a.horario || '99:99').localeCompare(b.horario || '99:99');
+      };
+
+      const listaFila = filtradosPessoa
+        .filter(p => p.status_producao !== 'Postado' && p.status_producao !== 'Ideia')
+        .sort(ordenarCronologico);
+
+      const listaIdeias = filtradosPessoa.filter(p => p.status_producao === 'Ideia');
+      const listaFeitos = filtradosPessoa
+        .filter(p => p.status_producao === 'Postado')
+        .sort(ordenarCronologico);
+
+      document.getElementById('badge_fila').textContent = listaFila.length;
+      document.getElementById('badge_ideias').textContent = listaIdeias.length;
+      document.getElementById('badge_feitos').textContent = listaFeitos.length;
+
+      let itens = [];
+      if (state.abaAtiva === 'fila') itens = listaFila;
+      if (state.abaAtiva === 'ideias') itens = listaIdeias;
+      if (state.abaAtiva === 'feitos') itens = listaFeitos;
+
+      if (itens.length === 0) {
+        const mensagensVazias = {
+          fila:   { icone: '🔥', titulo: 'Nenhum post na fila!', sub: 'Toque em "+ Novo Post" para agendar um conteúdo.' },
+          ideias: { icone: '💡', titulo: 'Sem ideias pendentes', sub: 'Cole um link no campo de Título de um Novo Post para salvar uma referência rápida aqui!' },
+          feitos: { icone: '✔️', titulo: 'Nenhum post concluído ainda', sub: 'Os posts marcados como "Já foi postado" ficam arquivados aqui.' }
+        };
+        const m = mensagensVazias[state.abaAtiva];
+        container.innerHTML = `
+          <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-8 text-center space-y-2 mt-4">
+            <div class="text-3xl">${m.icone}</div>
+            <h3 class="text-sm font-bold text-white">${m.titulo}</h3>
+            <p class="text-xs text-slate-400 max-w-xs mx-auto">${m.sub}</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (state.abaAtiva === 'ideias') {
+        container.innerHTML = itens.map(post => renderCardIdeia(post)).join('');
+        return;
+      }
+
+      const gruposPorDia = {};
+      itens.forEach(post => {
+        const diaKey = obterDataEfetivaPost(post, ev) || 'SEM_DATA';
+        if (!gruposPorDia[diaKey]) gruposPorDia[diaKey] = [];
+        gruposPorDia[diaKey].push(post);
+      });
+
+      const chavesDias = Object.keys(gruposPorDia).sort();
+      let htmlFinal = '';
+
+      chavesDias.forEach(diaKey => {
+        const labelDia = diaKey === 'SEM_DATA'
+          ? '📅 Sem data definida'
+          : `📅 Dia ${formatarDataBRComDiaSemana(diaKey)}`;
+
+        htmlFinal += `
+          <div class="pt-2 pb-1">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-px bg-slate-800 flex-1"></div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 bg-slate-900 border border-indigo-500/30 px-3.5 py-1 rounded-full shadow-sm">
+                ${labelDia}
+              </span>
+              <div class="h-px bg-slate-800 flex-1"></div>
+            </div>
+            <div class="space-y-3.5">
+              ${gruposPorDia[diaKey].map(post => state.abaAtiva === 'feitos' ? renderCardFeito(post, ev) : renderCardFila(post, ev)).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = htmlFinal;
+    }
+
+    /**
+     * RENDERIZAÇÃO DOS CARDS E SEMÁFORO DE 3 ESTADOS
+     */
+    function obterConfigSemaforo(status) {
+      if (status === 'Pronto') {
+        return {
+          label: '🟢 Pronto',
+          classes: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300',
+          proximo: 'Programado'
+        };
+      }
+      if (status === 'Em produção') {
+        return {
+          label: '🟡 Em produção',
+          classes: 'bg-amber-500/20 border-amber-500/40 text-amber-300',
+          proximo: 'Pronto'
+        };
+      }
+      return {
+        label: '📅 Programado',
+        classes: 'bg-slate-800 border-slate-600 text-slate-300',
+        proximo: 'Em produção'
+      };
+    }
+
+    function renderCardFila(post, ev) {
+      const estilo = FORMATO_STYLES[post.tipo_post] || FORMATO_STYLES['Reels'];
+      const dataEfetiva = obterDataEfetivaPost(post, ev);
+      const atrasado = isPostAtrasado(dataEfetiva, post.horario);
+      const semaforo = obterConfigSemaforo(post.status_producao);
+      const listaResp = extrairResponsaveis(post.responsavel);
+
+      const badgeHorario = post.horario
+        ? (atrasado
+            ? `<span class="late-badge bg-red-500/20 border border-red-500 text-red-300 text-xs font-extrabold px-2.5 py-1 rounded-lg flex items-center gap-1">🚨 Atrasado • ${post.horario}</span>`
+            : `<span class="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">⏰ ${post.horario}</span>`)
+        : `<span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-lg">Sem horário</span>`;
+
+      const badgesResponsaveis = listaResp.length > 0
+        ? listaResp.map(nome => `<span class="bg-slate-800 border border-slate-700 text-slate-200 text-[11px] font-semibold px-2 py-0.5 rounded-md">👤 ${escapeHtml(nome)}</span>`).join('')
+        : `<span class="text-xs text-slate-500">👤 Sem responsável</span>`;
+
+      return `
+        <article class="bg-slate-900 border ${atrasado ? 'border-red-500/60' : 'border-slate-800'} rounded-2xl p-4 shadow-lg space-y-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="border ${estilo.badge} text-xs font-bold px-2.5 py-1 rounded-lg">${estilo.icon} ${escapeHtml(post.tipo_post)}</span>
+              ${badgeHorario}
+            </div>
+            <button onclick="alternarSemaforo('${post.id_post}', '${semaforo.proximo}')" title="Toque para mudar o status" class="border ${semaforo.classes} text-xs font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
+              ${semaforo.label}
+            </button>
+          </div>
+
+          <div class="flex items-start justify-between gap-2">
+            <div class="space-y-1.5 min-w-0">
+              <h3 class="text-base font-extrabold text-white leading-snug">${escapeHtml(post.titulo)}</h3>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                ${badgesResponsaveis}
+                ${post.link_referencia ? `<a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="text-[11px] bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 font-semibold px-2 py-0.5 rounded-md hover:bg-indigo-500/25">🔗 Referência ↗</a>` : ''}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="editarPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 text-xs" title="Editar">✏️</button>
+              <button onclick="confirmarExclusaoPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-red-400 rounded-lg bg-slate-800/80 text-xs" title="Excluir">🗑️</button>
+            </div>
+          </div>
+
+          ${post.legenda ? `
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 space-y-2.5">
+              <div class="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto select-text">${escapeHtml(post.legenda)}</div>
+              <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
+                <button onclick="copiarLegenda('${post.id_post}', false, this)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 transition text-slate-200 font-semibold text-xs py-2 px-2.5 rounded-lg flex items-center justify-center gap-1">
+                  📋 Copiar Legenda
+                </button>
+                <button onclick="copiarLegenda('${post.id_post}', true, this)" class="bg-indigo-600/25 hover:bg-indigo-600/35 border border-indigo-500/40 active:scale-95 transition text-indigo-200 font-semibold text-xs py-2 px-2.5 rounded-lg flex items-center justify-center gap-1">
+                  #️⃣ Copiar + Final
+                </button>
+              </div>
+            </div>
+          ` : `
+            <div class="text-xs text-slate-500 italic bg-slate-950/40 rounded-xl px-3 py-2">Sem legenda cadastrada.</div>
+          `}
+
+          <button onclick="marcarComoPostado('${post.id_post}')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] transition text-white font-bold text-sm py-2.5 rounded-xl shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+            <span>✅</span> Já foi postado
+          </button>
+        </article>
+      `;
+    }
+
+    function renderCardIdeia(post) {
+      return `
+        <article class="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg">💡 Referência / Ideia</span>
+            <button onclick="confirmarExclusaoPost('${post.id_post}')" class="p-1.5 text-slate-400 hover:text-red-400 text-xs">🗑️</button>
+          </div>
+
+          <div class="space-y-1">
+            <h3 class="text-sm font-bold text-white">${escapeHtml(post.titulo || 'Referência salva')}</h3>
+            <p class="text-xs text-slate-400">👤 Escalados/Sugerido: ${post.responsavel ? escapeHtml(post.responsavel) : 'Equipe'}</p>
+          </div>
+
+          ${post.link_referencia ? `
+            <a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="block bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-indigo-400 truncate hover:underline">
+              🔗 ${escapeHtml(post.link_referencia)}
+            </a>
+          ` : ''}
+
+          <div class="flex gap-2 pt-1">
+            ${post.link_referencia ? `
+              <a href="${escapeAttr(post.link_referencia)}" target="_blank" rel="noopener" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs py-2.5 rounded-xl text-center">
+                🔗 Abrir Link
+              </a>
+            ` : ''}
+            <button onclick="aprovarIdeia('${post.id_post}')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 rounded-xl">
+              🚀 Aprovar e Programar
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderCardFeito(post) {
+      const estilo = FORMATO_STYLES[post.tipo_post] || FORMATO_STYLES['Reels'];
+      return `
+        <article class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 space-y-2.5 opacity-80">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5">
+              <span class="border ${estilo.badge} text-[11px] font-bold px-2 py-0.5 rounded-md">${estilo.icon} ${escapeHtml(post.tipo_post)}</span>
+              ${post.horario ? `<span class="text-xs text-slate-400 font-semibold">⏰ ${post.horario}</span>` : ''}
+            </div>
+            <span class="bg-emerald-500/15 text-emerald-400 text-xs font-bold px-2.5 py-0.5 rounded-md">✔️ Postado</span>
+          </div>
+
+          <h3 class="text-sm font-bold text-slate-200 line-through">${escapeHtml(post.titulo)}</h3>
+          <p class="text-xs text-slate-400">👥 ${post.responsavel ? escapeHtml(post.responsavel) : 'Sem responsável'}</p>
+
+          <div class="flex items-center gap-2 pt-1">
+            ${post.legenda ? `
+              <button onclick="copiarLegenda('${post.id_post}', true, this)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 rounded-lg">
+                📋 Copiar Legenda + Final
+              </button>
+            ` : ''}
+            <button onclick="voltarPostParaFila('${post.id_post}')" class="bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold px-3 py-2 rounded-lg">
+              ↩️ Voltar p/ Fila
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    /**
+     * VERIFICAÇÃO INTELIGENTE DE ATRASO (DATA COMPLETA + HORÁRIO)
+     */
+    function isPostAtrasado(dataPostStr, horarioStr) {
+      if (!horarioStr || !/^\d{2}:\d{2}$/.test(horarioStr)) return false;
+
+      const agora = new Date();
+      const ano = agora.getFullYear();
+      const mes = String(agora.getMonth() + 1).padStart(2, '0');
+      const dia = String(agora.getDate()).padStart(2, '0');
+      const hojeStr = `${ano}-${mes}-${dia}`;
+      const horaAtual = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+
+      if (dataPostStr && /^\d{4}-\d{2}-\d{2}$/.test(dataPostStr)) {
+        if (dataPostStr > hojeStr) return false;
+        if (dataPostStr < hojeStr) return true;
+      }
+      return horarioStr < horaAtual;
+    }
+
+    /**
+     * MODAL DE EVENTO: MÚLTIPLOS DIAS
+     */
+    function extrairDatasEvento(str) {
+      return String(str || '')
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+        .sort();
+    }
+
+    function openModalEvento() {
+      document.getElementById('modalEventoTitulo').textContent = 'Novo Evento';
+      document.getElementById('ev_id').value = '';
+      document.getElementById('ev_nome').value = '';
+      document.getElementById('ev_input_data').value = obterDataHojeISO();
+      document.getElementById('ev_rodape').value = '';
+      state.datasEventoModal = [obterDataHojeISO()];
+      renderPillsDatasEventoModal();
+      document.getElementById('modalEvento').classList.remove('hidden');
+    }
+
+    function openModalRodape() {
+      const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
+      if (!ev) return;
+      document.getElementById('modalEventoTitulo').textContent = 'Configurar Evento, Dias & Rodapé';
+      document.getElementById('ev_id').value = ev.id_evento;
+      document.getElementById('ev_nome').value = ev.nome;
+      document.getElementById('ev_input_data').value = '';
+      document.getElementById('ev_rodape').value = ev.texto_final_padrao || '';
+      state.datasEventoModal = extrairDatasEvento(ev.data_evento);
+      renderPillsDatasEventoModal();
+      document.getElementById('modalEvento').classList.remove('hidden');
+    }
+
+    function adicionarDataAoEventoModal() {
+      const val = document.getElementById('ev_input_data').value;
+      if (!val) return alert('Selecione uma data no calendário primeiro!');
+      if (!state.datasEventoModal.includes(val)) {
+        state.datasEventoModal.push(val);
+        state.datasEventoModal.sort();
+      }
+      renderPillsDatasEventoModal();
+    }
+
+    function removerDataDoEventoModal(dataISO) {
+      state.datasEventoModal = state.datasEventoModal.filter(d => d !== dataISO);
+      renderPillsDatasEventoModal();
+    }
+
+    function renderPillsDatasEventoModal() {
+      const container = document.getElementById('ev_lista_datas_pills');
+      if (state.datasEventoModal.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-500 italic">Nenhum dia adicionado ainda.</span>`;
+        return;
+      }
+      container.innerHTML = state.datasEventoModal.map(d => `
+        <span class="bg-indigo-600/25 border border-indigo-500/40 text-indigo-200 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+          <span>🗓️ Dia ${formatarDataBR(d)}</span>
+          <button type="button" onclick="removerDataDoEventoModal('${d}')" class="text-indigo-300 hover:text-red-400 font-black">✕</button>
+        </span>
+      `).join('');
+    }
+
+    function closeModalEvento() {
+      document.getElementById('modalEvento').classList.add('hidden');
+    }
+
+    async function salvarEventoForm() {
+      const nome = document.getElementById('ev_nome').value.trim();
+      if (!nome) return alert('Informe o nome do evento!');
+
+      const inputData = document.getElementById('ev_input_data').value;
+      if (inputData && !state.datasEventoModal.includes(inputData)) {
+        state.datasEventoModal.push(inputData);
+        state.datasEventoModal.sort();
+      }
+
+      if (state.datasEventoModal.length === 0) {
+        return alert('Adicione pelo menos 1 dia para o evento!');
+      }
+
+      const payload = {
+        id_evento: document.getElementById('ev_id').value,
+        nome,
+        data_evento: state.datasEventoModal.join(','),
+        texto_final_padrao: document.getElementById('ev_rodape').value
+      };
+
+      closeModalEvento();
+      try {
+        const res = await callServer('saveEvento', payload);
+        aplicarDadosRecebidos(res);
+        mostrarToast('Evento salvo com sucesso!');
+      } catch (e) {
+        mostrarToast('Erro ao salvar evento: ' + e.message);
+      }
+    }
+
+    /**
+     * MODAL DE POST: DIAS EM PÍLULAS + MÚLTIPLOS RESPONSÁVEIS
+     */
+    function renderPillsDiasNoModalPost() {
+      const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
+      const datasEv = extrairDatasEvento(ev ? ev.data_evento : '');
+      const container = document.getElementById('pillsDiasPost');
+
+      if (datasEv.length === 0) {
+        const hoje = state.dataPostSelecionada || obterDataHojeISO();
+        state.dataPostSelecionada = hoje;
+        container.innerHTML = `<input type="date" value="${hoje}" onchange="state.dataPostSelecionada = this.value" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">`;
+        return;
+      }
+
+      if (!state.dataPostSelecionada || !datasEv.includes(state.dataPostSelecionada)) {
+        state.dataPostSelecionada = datasEv[0];
+      }
+
+      container.innerHTML = datasEv.map(d => {
+        const ativo = state.dataPostSelecionada === d;
+        const cls = ativo
+          ? 'bg-indigo-600 border-indigo-400 text-white font-extrabold shadow-md shadow-indigo-600/30'
+          : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 font-semibold';
+        return `
+          <button type="button" onclick="selecionarDiaPostModal('${d}')" class="border ${cls} text-xs px-3.5 py-2 rounded-xl transition active:scale-95">
+            🗓️ Dia ${formatarDataBR(d)}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selecionarDiaPostModal(dataISO) {
+      state.dataPostSelecionada = dataISO;
+      renderPillsDiasNoModalPost();
+    }
+
+    function renderPillsResponsaveisModal() {
+      const container = document.getElementById('pillsResponsaveisModal');
+      const equipeOrdenada = [...state.equipe].sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+
+      if (equipeOrdenada.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-500 italic">Nenhuma pessoa cadastrada. Clique em "＋ Nova pessoa" acima.</span>`;
+        return;
+      }
+
+      container.innerHTML = equipeOrdenada.map(nome => {
+        const selecionado = state.responsaveisPostSelecionados.some(n => n.toLowerCase() === nome.toLowerCase());
+        const cls = selecionado
+          ? 'bg-indigo-600 border-indigo-400 text-white font-bold shadow-sm'
+          : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 font-medium';
+        return `
+          <button type="button" onclick="toggleResponsavelModal('${escapeAttr(nome)}')" class="border ${cls} text-xs px-3 py-1.5 rounded-full transition active:scale-95 flex items-center gap-1">
+            <span>${selecionado ? '✓' : '👤'}</span>
+            <span>${escapeHtml(nome)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function toggleResponsavelModal(nome) {
+      const idx = state.responsaveisPostSelecionados.findIndex(n => n.toLowerCase() === nome.toLowerCase());
+      if (idx >= 0) {
+        state.responsaveisPostSelecionados.splice(idx, 1);
+      } else {
+        state.responsaveisPostSelecionados.push(nome);
+      }
+      renderPillsResponsaveisModal();
+    }
+
+    function selecionarTipo(tipo) {
+      state.tipoSelecionado = tipo;
+      document.querySelectorAll('.tipo-btn').forEach(btn => {
+        const t = btn.getAttribute('data-tipo');
+        const ativo = t === tipo;
+        btn.className = ativo
+          ? 'tipo-btn py-2 px-2 rounded-xl text-xs font-extrabold border-2 border-indigo-400 bg-indigo-600/30 text-white transition'
+          : 'tipo-btn py-2 px-2 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400 transition';
+      });
+    }
+
+    function isUrlValida(str) {
+      const s = String(str || '').trim();
+      return /^(https?:\/\/|www\.)\S+/i.test(s);
+    }
+
+    function verificarCondicionalLink(valor) {
+      const idExistente = document.getElementById('post_id').value;
+      if (idExistente) return;
+
+      const ehLink = isUrlValida(valor);
+      document.getElementById('post_modo_condicional').value = ehLink ? 'ideia' : 'post';
+      document.getElementById('boxModoIdeia').classList.toggle('hidden', !ehLink);
+      document.getElementById('boxCamposCompletos').classList.toggle('hidden', ehLink);
+
+      const btn = document.getElementById('btnSalvarPost');
+      if (ehLink) {
+        btn.textContent = '💡 Salvar em Ideias';
+        btn.className = 'flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm';
+      } else {
+        btn.textContent = 'Salvar na Fila';
+        btn.className = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm';
+      }
+    }
+
+    function openModalPost() {
+      document.getElementById('modalPostHeader').textContent = 'Novo Post ou Ideia';
+      document.getElementById('post_id').value = '';
+      document.getElementById('post_campo_principal').value = '';
+      document.getElementById('post_obs_ideia').value = '';
+      document.getElementById('post_horario').value = '';
+      document.getElementById('post_status').value = 'Programado';
+      document.getElementById('post_link_ref').value = '';
+      document.getElementById('post_legenda').value = '';
+      document.getElementById('labelCampoPrincipal').textContent = 'Título do Post (ou cole um Link para salvar como Ideia) *';
+
+      state.dataPostSelecionada = '';
+      state.responsaveisPostSelecionados = state.filtroPessoa !== 'TODOS' ? [state.filtroPessoa] : [];
+
+      selecionarTipo('Reels');
+      renderPillsDiasNoModalPost();
+      renderPillsResponsaveisModal();
+      verificarCondicionalLink('');
+      document.getElementById('modalPost').classList.remove('hidden');
+    }
+
+    function editarPost(idPost) {
+      const post = state.posts.find(p => p.id_post === idPost);
+      if (!post) return;
+      const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
+
+      document.getElementById('modalPostHeader').textContent = 'Editar Postagem';
+      document.getElementById('post_id').value = post.id_post;
+      document.getElementById('post_campo_principal').value = post.titulo;
+      document.getElementById('post_horario').value = post.horario || '';
+      document.getElementById('post_status').value = ['Programado', 'Em produção', 'Pronto'].includes(post.status_producao) ? post.status_producao : 'Programado';
+      document.getElementById('post_link_ref').value = post.link_referencia || '';
+      document.getElementById('post_legenda').value = post.legenda || '';
+      document.getElementById('labelCampoPrincipal').textContent = 'Título da Postagem *';
+
+      state.dataPostSelecionada = obterDataEfetivaPost(post, ev);
+      state.responsaveisPostSelecionados = extrairResponsaveis(post.responsavel);
+
+      document.getElementById('post_modo_condicional').value = 'post';
+      document.getElementById('boxModoIdeia').classList.add('hidden');
+      document.getElementById('boxCamposCompletos').classList.remove('hidden');
+      document.getElementById('btnSalvarPost').textContent = 'Salvar Alterações';
+      document.getElementById('btnSalvarPost').className = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm';
+
+      selecionarTipo(post.tipo_post || 'Reels');
+      renderPillsDiasNoModalPost();
+      renderPillsResponsaveisModal();
+      document.getElementById('modalPost').classList.remove('hidden');
+    }
+
+    function aprovarIdeia(idPost) {
+      const post = state.posts.find(p => p.id_post === idPost);
+      if (!post) return;
+
+      document.getElementById('modalPostHeader').textContent = '🚀 Aprovar Ideia para a Fila';
+      document.getElementById('post_id').value = post.id_post;
+      document.getElementById('post_campo_principal').value = isUrlValida(post.titulo) ? '' : post.titulo;
+      document.getElementById('post_horario').value = '';
+      document.getElementById('post_status').value = 'Programado';
+      document.getElementById('post_link_ref').value = post.link_referencia || (isUrlValida(post.titulo) ? post.titulo : '');
+      document.getElementById('post_legenda').value = '';
+      document.getElementById('labelCampoPrincipal').textContent = 'Defina o Título Oficial do Post *';
+
+      state.dataPostSelecionada = '';
+      state.responsaveisPostSelecionados = extrairResponsaveis(post.responsavel);
+
+      document.getElementById('post_modo_condicional').value = 'post';
+      document.getElementById('boxModoIdeia').classList.add('hidden');
+      document.getElementById('boxCamposCompletos').classList.remove('hidden');
+      document.getElementById('btnSalvarPost').textContent = '🚀 Aprovar e Enviar p/ Fila';
+      document.getElementById('btnSalvarPost').className = 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm';
+
+      selecionarTipo('Reels');
+      renderPillsDiasNoModalPost();
+      renderPillsResponsaveisModal();
+      document.getElementById('modalPost').classList.remove('hidden');
+    }
+
+    function closeModalPost() {
+      document.getElementById('modalPost').classList.add('hidden');
+    }
+
+    async function salvarPostForm() {
+      const campoPrincipal = document.getElementById('post_campo_principal').value.trim();
+      if (!campoPrincipal) return alert('Preencha o campo principal (Título ou Link)!');
+
+      const modo = document.getElementById('post_modo_condicional').value;
+      const idPost = document.getElementById('post_id').value;
+      const responsaveisOrdenados = [...state.responsaveisPostSelecionados]
+        .sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }))
+        .join(', ');
+
+      let payload = {};
+
+      if (modo === 'ideia' && !idPost) {
+        const obs = document.getElementById('post_obs_ideia').value.trim();
+        payload = {
+          id_post: '',
+          id_evento: state.eventoAtivoId,
+          tipo_post: 'Reels',
+          titulo: obs || 'Referência: ' + campoPrincipal,
+          legenda: '',
+          horario: '',
+          link_referencia: campoPrincipal,
+          responsavel: responsaveisOrdenados,
+          status_producao: 'Ideia',
+          data_post: ''
+        };
+        state.abaAtiva = 'ideias';
+      } else {
+        payload = {
+          id_post: idPost,
+          id_evento: state.eventoAtivoId,
+          tipo_post: state.tipoSelecionado,
+          titulo: campoPrincipal,
+          legenda: document.getElementById('post_legenda').value,
+          horario: document.getElementById('post_horario').value,
+          link_referencia: document.getElementById('post_link_ref').value.trim(),
+          responsavel: responsaveisOrdenados,
+          status_producao: document.getElementById('post_status').value,
+          data_post: state.dataPostSelecionada
+        };
+        state.abaAtiva = 'fila';
+      }
+
+      closeModalPost();
+      atualizarBotoesAba();
+
+      try {
+        const res = await callServer('savePost', payload);
+        aplicarDadosRecebidos(res);
+        mostrarToast(modo === 'ideia' ? '💡 Salvo em Ideias!' : '🔥 Salvo na programação!');
+      } catch (e) {
+        mostrarToast('Erro ao salvar: ' + e.message);
+      }
+    }
+
+    /**
+     * AÇÕES RÁPIDAS DO CARD
+     */
+    function copiarLegenda(idPost, incluirRodape, btnEl) {
+      const post = state.posts.find(p => p.id_post === idPost);
+      if (!post) return;
+      const ev = state.eventos.find(e => e.id_evento === state.eventoAtivoId);
+
+      let textoFinal = post.legenda || '';
+      if (incluirRodape && ev && ev.texto_final_padrao) {
+        textoFinal = textoFinal.trim() + '\n\n' + ev.texto_final_padrao.trim();
+      }
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textoFinal).catch(() => fallbackCopy(textoFinal));
+      } else {
+        fallbackCopy(textoFinal);
+      }
+
+      const originalHtml = btnEl.innerHTML;
+      btnEl.innerHTML = '✅ Copiado!';
+      setTimeout(() => { btnEl.innerHTML = originalHtml; }, 1800);
+    }
+
+    function fallbackCopy(texto) {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    async function alternarSemaforo(idPost, novoStatus) {
+      const post = state.posts.find(p => p.id_post === idPost);
+      if (!post) return;
+      post.status_producao = novoStatus;
+      renderPosts();
+
+      try {
+        const res = await callServer('updatePostStatus', { id_post: idPost, status_producao: novoStatus });
+        aplicarDadosRecebidos(res);
+      } catch (e) {
+        mostrarToast('Erro ao mudar status: ' + e.message);
+      }
+    }
+
+    async function marcarComoPostado(idPost) {
+      const post = state.posts.find(p => p.id_post === idPost);
+      if (!post) return;
+
+      const statusAnterior = post.status_producao;
+      post.status_producao = 'Postado';
+      renderPosts();
+
+      mostrarToast('Post enviado para ✔️ Feitos!', {
+        id_post: idPost,
+        status_anterior: statusAnterior
+      });
+
+      try {
+        const res = await callServer('updatePostStatus', { id_post: idPost, status_producao: 'Postado' });
+        aplicarDadosRecebidos(res);
+      } catch (e) {
+        mostrarToast('Erro ao salvar status: ' + e.message);
+      }
+    }
+
+    async function voltarPostParaFila(idPost) {
+      await alternarSemaforo(idPost, 'Pronto');
+      mostrarToast('Post devolvido para a 🔥 Fila!');
+    }
+
+    async function executarUndo() {
+      if (!state.undoData) return;
+      const { id_post, status_anterior } = state.undoData;
+      state.undoData = null;
+      document.getElementById('toastContainer').classList.add('hidden');
+      await alternarSemaforo(id_post, status_anterior);
+    }
+
+    function mostrarToast(msg, undoObj = null) {
+      if (state.undoTimer) clearTimeout(state.undoTimer);
+      state.undoData = undoObj;
+
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastUndoBtn').classList.toggle('hidden', !undoObj);
+      document.getElementById('toastContainer').classList.remove('hidden');
+
+      state.undoTimer = setTimeout(() => {
+        document.getElementById('toastContainer').classList.add('hidden');
+        state.undoData = null;
+      }, 5000);
+    }
+
+    async function confirmarExclusaoPost(idPost) {
+      if (!confirm('Deseja realmente excluir este item?')) return;
+      try {
+        const res = await callServer('deletePost', { id_post: idPost });
+        aplicarDadosRecebidos(res);
+        mostrarToast('Item excluído.');
+      } catch (e) {
+        mostrarToast('Erro ao excluir: ' + e.message);
+      }
+    }
+
+    async function confirmarExclusaoEvento(idEvento) {
+      if (!confirm('Excluir este evento e TODOS os posts dentro dele?')) return;
+      try {
+        const res = await callServer('deleteEvento', { id_evento: idEvento });
+        aplicarDadosRecebidos(res);
+        mostrarToast('Evento excluído.');
+      } catch (e) {
+        mostrarToast('Erro ao excluir evento: ' + e.message);
+      }
+    }
+
+    /**
+     * UTILITÁRIOS
+     */
+    function obterDataHojeISO() {
+      const agora = new Date();
+      return agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0') + '-' + String(agora.getDate()).padStart(2, '0');
+    }
+
+    function formatarDataBR(yyyyMMdd) {
+      const partes = String(yyyyMMdd).split('-');
+      if (partes.length !== 3) return yyyyMMdd;
+      return `${partes[2]}/${partes[1]}`;
+    }
+
+    function formatarDataBRComDiaSemana(yyyyMMdd) {
+      const partes = String(yyyyMMdd).split('-');
+      if (partes.length !== 3) return yyyyMMdd;
+      const dt = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      return `${partes[2]}/${partes[1]} • ${dias[dt.getDay()]}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
